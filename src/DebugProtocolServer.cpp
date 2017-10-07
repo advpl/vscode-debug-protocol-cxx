@@ -8,11 +8,13 @@
 void run (std::istream &input)
 {	 
 	
+	/*
+	Se precisar esperar pelo debug
 	using namespace boost::algorithm;
 	using namespace std::chrono_literals;
 	auto start = std::chrono::high_resolution_clock::now();
     std::this_thread::sleep_for(10s);
-    auto end = std::chrono::high_resolution_clock::now();
+    auto end = std::chrono::high_resolution_clock::now();*/
 	while (input.good()) {
 		// A Debug Protocol message starts with a set of HTTP headers,
 		// delimited  by \r\n, and terminated by an empty line (\r\n).
@@ -21,13 +23,13 @@ void run (std::istream &input)
 		  std::string Line;
 		  std::getline(input, Line);
 		  if (!input.good() && errno == EINTR) {
-			input.clear();
-			continue;
+				input.clear();
+				continue;
 		  }
 		  if (starts_with(Line,"Content-Length: ")) {
-			Line = erase_head_copy(Line,16);
-			ContentLength = boost::lexical_cast<long>(Line.data());
-			continue;
+				Line = erase_head_copy(Line,16);
+				ContentLength = boost::lexical_cast<long>(Line.data());
+				continue;
 		  }
 
 		}

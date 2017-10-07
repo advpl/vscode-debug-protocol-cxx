@@ -1,0 +1,32 @@
+{
+  "name": "node_mock_client",
+  "version": "0.0.1",
+  "description": "Cliente de test do debug protocol",
+  "main": "out/index.js",
+  "scripts": {
+    "prepublish": "npm run build",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ragssoftwares/vscode-debug-protocol-cxx.git"
+  },
+  "dependencies": {
+		"vscode-debugprotocol": "^1.24.0",
+		"vscode-debugadapter": "^1.24.0"
+	},
+	"devDependencies": {
+		"@types/node": "^6.0.50",
+		"@types/mocha": "^2.2.42",
+		"typescript": "^2.5.2",
+		"mocha": "^3.5.0",	
+		"vscode-debugadapter-testsupport": "^1.24.0"
+	},
+  "author": "Rodrigo Antonio",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ragssoftwares/vscode-debug-protocol-cxx/issues"
+  },
+  "homepage": "https://github.com/ragssoftwares/vscode-debug-protocol-cxx#readme"
+}
