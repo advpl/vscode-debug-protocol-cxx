@@ -27,7 +27,7 @@ endif(WIN32)
 
 
 project(vscode-debug-protocol)
-#set (Boost_DEBUG true)
+set (Boost_DEBUG true)
 
 if (NOT DEFINED     BOOST_ROOT        AND
 NOT DEFINED ENV{BOOST_ROOT}       AND
@@ -37,6 +37,11 @@ NOT DEFINED     BOOST_LIBRARYDIR  AND
 NOT DEFINED ENV{BOOST_LIBRARYDIR})
 if (APPLE)
     set(BOOST_ROOT "../../../boost/boost_1_54_0/mac")
+elseif (UNIX)
+    set(BOOST_ROOT "/home/rodrigo/dev/boost/")
+    set (BOOST_INCLUDEDIR "/home/rodrigo/dev/boost/")
+    set (BOOST_LIBRARYDIR "/home/rodrigo/dev/boost/stage/lib/")
+    ADD_DEFINITIONS("-std=c++11")
 elseif (WIN32)
     set (BOOST_ROOT "C:/local/boost_1_64_0" )
     set (BOOST_INCLUDEDIR "C:/local/boost_1_64_0" )
@@ -65,7 +70,7 @@ set (Boost_USE_STATIC_LIBS ON)
 set (Boost_USE_STATIC_RUNTIME OFF)
 set (BOOST_ALL_DYN_LINK OFF)
 
-find_package(Boost 1.64.0 EXACT REQUIRED system thread serialization date_time regex  unit_test_framework REQUIRED)
+find_package(Boost REQUIRED system thread serialization date_time regex  unit_test_framework REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
 add_executable(${PROJECT_NAME} ${sources} ${data})

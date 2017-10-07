@@ -8,7 +8,8 @@ export function hello(){
     
         const PROJECT_ROOT = Path.join(__dirname, '../../');
         //const DATA_ROOT = Path.join(PROJECT_ROOT, 'src/tests/data/');
-        const EXEC_PATH =  Path.join(PROJECT_ROOT, 'build/Debug/vscode-debug-protocol.exe');
+        //const EXEC_PATH =  Path.join(PROJECT_ROOT, 'build/Debug/vscode-debug-protocol.exe');
+        const EXEC_PATH =  Path.join(PROJECT_ROOT, 'build/vscode-debug-protocol');
         const EXEC_DEBUG = "vscode-debug-protocol.exe";
     
     

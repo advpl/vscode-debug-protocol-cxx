@@ -8,10 +8,10 @@
 void run (std::istream &input)
 {	 
 	
-	/*
-	Se precisar esperar pelo debug
+	
+	//Se precisar esperar pelo debug
 	using namespace boost::algorithm;
-	using namespace std::chrono_literals;
+	/*using namespace std::chrono_literals;
 	auto start = std::chrono::high_resolution_clock::now();
     std::this_thread::sleep_for(10s);
     auto end = std::chrono::high_resolution_clock::now();*/
