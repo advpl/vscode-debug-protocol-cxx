@@ -1,2 +1,4 @@
 # vscode-debug-protocol-cxx
-Implementação do protocolo de Debug do VsCode em c++
+Implementação do protocolo de Debug do VsCode em C++
+
+
