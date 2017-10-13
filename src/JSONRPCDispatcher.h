@@ -3,6 +3,8 @@
 
 //#include <boost/utility/string_ref.hpp>
 #include <boost/unordered_map.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include "JSONOutput.h"
 #include "Handler.h"
 namespace vscode_debug {
@@ -21,7 +23,7 @@ public:
   void registerHandler(std::string Method, std::unique_ptr<Handler> H);
 
   /// Parses a JSONRPC message and calls the Handler for it.
-  bool call(std::string Content) const;
+  bool call(boost::string_ref Content) const;
 
 private:
   map Handlers;
