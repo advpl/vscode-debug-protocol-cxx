@@ -62,12 +62,3 @@ namespace vscode_debug {
 		}
 	}
 }
-int main()
-{
-	vscode_debug::DebugProtocolServer server;
-
-	vscode_debug::JSONOutput Out(std::cout, std::cerr);
-	vscode_debug::JSONRPCDispatcher Dispatcher(std::make_unique<vscode_debug::Handler>(Out));	
-	server.run(std::cin,Out,Dispatcher);
-	return 0;
-}

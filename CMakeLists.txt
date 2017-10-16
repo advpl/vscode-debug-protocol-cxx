@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
+set (CMAKE_CXX_STANDARD 11)
 enable_testing()
 if (WIN32)
 macro(get_WIN32_WINNT version)
