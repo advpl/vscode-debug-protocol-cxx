@@ -4,7 +4,7 @@ namespace vscode_debug {
     struct InitializeHandler : Handler {
         InitializeHandler(JSONOutput &Output, ProtocolCallbacks &Callbacks)
             : Handler(Output), Callbacks(Callbacks) {}
-            void handleMethod(boost::property_tree::ptree Params, std::string ID) override {
+            void handleMethod(Json Params, std::string ID) override {
               Callbacks.onInitialize(ID, Output);
             }
        /* void handleMethod(llvm::yaml::MappingNode *Params, StringRef ID) override {

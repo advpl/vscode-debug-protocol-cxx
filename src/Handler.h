@@ -3,9 +3,11 @@
 
 #include <boost/utility/string_ref.hpp>
 #include <boost/unordered_map.hpp>
-#include <boost/property_tree/ptree.hpp>
+//#include <boost/property_tree/ptree.hpp>
+#include "json.hpp"
 #include "Logger.h"
 #include "JSONOutput.h"
+using Json = nlohmann::json;
 namespace vscode_debug {
     class Handler {
     public:
@@ -15,7 +17,7 @@ namespace vscode_debug {
       /// Called when the server receives a method call. This is supposed to return
       /// a result on Outs. The default implementation returns an "unknown method"
       /// error to the client and logs a warning.
-      virtual void handleMethod(boost::property_tree::ptree Params, std::string ID)
+      virtual void handleMethod(Json Params, std::string ID)
       {
 
       }

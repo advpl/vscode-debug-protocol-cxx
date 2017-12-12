@@ -4,7 +4,7 @@ void JSONRPCDispatcher::registerHandler(std::string method, std::unique_ptr<Hand
 //assert(!Handlers.count(Method) && "Handler already registered!");
     Handlers[method] = std::move(H);
 }
-    static void  callHandler(std::unique_ptr<Handler> &handle,boost::property_tree::ptree pt)
+    static void callHandler(std::unique_ptr<Handler> &handle,Json pt)
     {
         handle->handleMethod(pt,"funciona");
     }    
@@ -14,17 +14,18 @@ void JSONRPCDispatcher::registerHandler(std::string method, std::unique_ptr<Hand
         std::stringstream ss;
         ss << Content;
       
-        boost::property_tree::ptree pt;
-        boost::property_tree::read_json(ss, pt);
-        
-        std::string method = pt.get<std::string>("command");
+        //boost::property_tree::ptree pt;
+        //boost::property_tree::read_json(ss, pt);
+        Json request = Json::parse(ss.str());
+        std::string method = request["command"];
+        //std::string method = pt.get<std::string>("command");
         MapHandler::iterator it = Handlers.find(method);
         //std::unordered_map<std::string, std::unique_ptr<Handler> > ::iterator it;
         it = Handlers.find(method);
         
         if(it != Handlers.end() )
         {
-            callHandler(it->second ,pt);
+            callHandler(it->second ,request);
         }
         
         return true;
