@@ -31,7 +31,7 @@ namespace vscode_debug {
 			else 
 			{
 				trim(Line);   
-				if(!empty(Line))
+				if(! Line.empty())
 				{
 					continue;   // It's another header, ignore it.
 				}

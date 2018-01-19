@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 14)
 enable_testing()
 if (WIN32)
 macro(get_WIN32_WINNT version)
@@ -28,6 +28,10 @@ endif(WIN32)
 
 
 project(vscode-debug-protocol)
+find_package(Threads)
+
+# Boost
+find_package(Boost REQUIRED system thread serialization date_time regex  unit_test_framework REQUIRED)
 set (Boost_DEBUG true)
 
 if (NOT DEFINED     BOOST_ROOT        AND
@@ -50,8 +54,6 @@ elseif (WIN32)
 endif()
 endif()
 
-
-
 #set(SOURCE hello.cpp)
 set (Boost_NO_BOOST_CMAKE ON)
 #file(GLOB_RECURSE sources      src/*.cpp include/connect/*.h)
@@ -71,13 +73,15 @@ set (Boost_USE_STATIC_LIBS ON)
 set (Boost_USE_STATIC_RUNTIME OFF)
 set (BOOST_ALL_DYN_LINK OFF)
 
-find_package(Boost REQUIRED system thread serialization date_time regex  unit_test_framework REQUIRED)
-
 include_directories(${Boost_INCLUDE_DIRS})
 add_executable(${PROJECT_NAME} ${sources} ${data})
 
 target_link_libraries(${PROJECT_NAME} 
   ${Boost_LIBRARIES}
   # here you can add any library dependencies
+        ${CMAKE_THREAD_LIBS_INIT}
 )
+
+# End Boost
+
 add_subdirectory(test)
