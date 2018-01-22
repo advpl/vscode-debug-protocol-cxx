@@ -12,7 +12,7 @@ namespace vscode_debug {
       virtual void onInitialize(std::string ID, JSONOutput &Out) = 0;
     };
 
-    void regiterCallbackHandlers(JSONRPCDispatcher &Dispatcher, JSONOutput &Out,
+    void registerCallbackHandlers(JSONRPCDispatcher &Dispatcher, JSONOutput &Out,
         ProtocolCallbacks &Callbacks);
 
 }
