@@ -5,8 +5,8 @@
 #include <boost/unordered_map.hpp>
 //#include <boost/property_tree/ptree.hpp>
 #include "json.hpp"
-#include "Logger.h"
-#include "JSONOutput.h"
+#include "Logger.hpp"
+#include "JSONOutput.hpp"
 using Json = nlohmann::json;
 namespace vscode_debug {
     class Handler {

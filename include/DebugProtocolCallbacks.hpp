@@ -1,7 +1,7 @@
 #ifndef DEBUG_PROTOCOL_CALL_BACKS_H
 #define DEBUG_PROTOCOL_CALL_BACKS_H
-#include "ProtocolHandlers.h"
-#include "DebugProtocolServer.h"
+#include "ProtocolHandlers.hpp"
+#include "DebugProtocolServer.hpp"
 //#include <boost/property_tree/ptree.hpp>
 
 namespace vscode_debug 

@@ -6,8 +6,8 @@
 #include <unordered_map>
 //#include <boost/property_tree/ptree.hpp>
 //#include <boost/property_tree/json_parser.hpp>
-#include "JSONOutput.h"
-#include "Handler.h"
+#include "JSONOutput.hpp"
+#include "Handler.hpp"
 namespace vscode_debug {
 
 typedef std::unordered_map<std::string, std::unique_ptr<Handler> > MapHandler;

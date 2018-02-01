@@ -1,6 +1,6 @@
-#include "DebugProtocolServer.h"
-#include "DebugProtocolCallbacks.h"
-#include "ProtocolHandlers.h"
+#include "DebugProtocolServer.hpp"
+#include "DebugProtocolCallbacks.hpp"
+#include "ProtocolHandlers.hpp"
 #include "json.hpp"
 #include <fcntl.h>
 

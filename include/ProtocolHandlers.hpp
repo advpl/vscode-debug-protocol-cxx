@@ -1,8 +1,8 @@
 #ifndef PROTOCOL_HANDLERS_H
 #define PROTOCOL_HANDLERS_H
-#include "JSONOutput.h"
-#include "Handler.h"
-#include "JSONRPCDispatcher.h"
+#include "JSONOutput.hpp"
+#include "Handler.hpp"
+#include "JSONRPCDispatcher.hpp"
 #include <string>
 namespace vscode_debug {
     class ProtocolCallbacks {

@@ -1,4 +1,4 @@
-#include "JSONRPCDispatcher.h"
+#include "JSONRPCDispatcher.hpp"
 namespace vscode_debug {
 void JSONRPCDispatcher::registerHandler(std::string method, std::unique_ptr<Handler> H) {
 //assert(!Handlers.count(Method) && "Handler already registered!");

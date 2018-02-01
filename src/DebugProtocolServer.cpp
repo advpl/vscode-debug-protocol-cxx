@@ -1,4 +1,4 @@
-#include "DebugProtocolServer.h"
+#include "DebugProtocolServer.hpp"
 
 namespace vscode_debug {
 	void DebugProtocolServer::run (std::istream &input, JSONOutput &Out, JSONRPCDispatcher &Dispatcher)

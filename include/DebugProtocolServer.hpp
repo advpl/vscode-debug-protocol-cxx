@@ -9,8 +9,8 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
-#include "JSONRPCDispatcher.h"
-#include "JSONOutput.h"
+#include "JSONRPCDispatcher.hpp"
+#include "JSONOutput.hpp"
 
 namespace vscode_debug {
     class DebugProtocolServer {

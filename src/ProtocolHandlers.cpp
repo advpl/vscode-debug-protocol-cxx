@@ -1,4 +1,4 @@
-#include "ProtocolHandlers.h"
+#include "ProtocolHandlers.hpp"
 
 namespace vscode_debug {
     struct InitializeHandler : Handler {

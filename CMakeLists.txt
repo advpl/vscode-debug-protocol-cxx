@@ -1,38 +1,60 @@
 cmake_minimum_required(VERSION 3.0)
 set (CMAKE_CXX_STANDARD 14)
 enable_testing()
+project(vscode-debug-protocol-lib)
 if (WIN32)
-macro(get_WIN32_WINNT version)
-    if (CMAKE_SYSTEM_VERSION)
-        set(ver ${CMAKE_SYSTEM_VERSION})
-        string(REGEX MATCH "^([0-9]+).([0-9])" ver ${ver})
-        string(REGEX MATCH "^([0-9]+)" verMajor ${ver})
-        # Check for Windows 10, b/c we'll need to convert to hex 'A'.
-        if ("${verMajor}" MATCHES "10")
-            set(verMajor "A")
-            string(REGEX REPLACE "^([0-9]+)" ${verMajor} ver ${ver})
-        endif ("${verMajor}" MATCHES "10")
-        # Remove all remaining '.' characters.
-        string(REPLACE "." "" ver ${ver})
-        # Prepend each digit with a zero.
-        string(REGEX REPLACE "([0-9A-Z])" "0\\1" ver ${ver})
-        set(${version} "0x${ver}")
-    endif(CMAKE_SYSTEM_VERSION)
-endmacro(get_WIN32_WINNT)
+    macro(get_WIN32_WINNT version)
+        if (CMAKE_SYSTEM_VERSION)
+            set(ver ${CMAKE_SYSTEM_VERSION})
+            string(REGEX MATCH "^([0-9]+).([0-9])" ver ${ver})
+            string(REGEX MATCH "^([0-9]+)" verMajor ${ver})
+            # Check for Windows 10, b/c we'll need to convert to hex 'A'.
+            if ("${verMajor}" MATCHES "10")
+                set(verMajor "A")
+                string(REGEX REPLACE "^([0-9]+)" ${verMajor} ver ${ver})
+            endif ("${verMajor}" MATCHES "10")
+            # Remove all remaining '.' characters.
+            string(REPLACE "." "" ver ${ver})
+            # Prepend each digit with a zero.
+            string(REGEX REPLACE "([0-9A-Z])" "0\\1" ver ${ver})
+            set(${version} "0x${ver}")
+        endif(CMAKE_SYSTEM_VERSION)
+    endmacro(get_WIN32_WINNT)
 
-ADD_DEFINITIONS(-DUNICODE)
-ADD_DEFINITIONS(-D_UNICODE)
-ADD_DEFINITIONS(-D_WIN32_WINNT=0x0501)
-
+    ADD_DEFINITIONS(-DUNICODE)
+    ADD_DEFINITIONS(-D_UNICODE)
+    get_WIN32_WINNT(ver)
+    add_definitions(-D_WIN32_WINNT=${ver})
+    #add_definitions(-D_WIN32_WINNT=0x0501)
+    if(MSVC)
+        add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+        add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+    endif(MSVC)
 endif(WIN32)
 
+set(LIB_SOURCES
+    src/DebugProtocolCallbacks.cpp
+    src/DebugProtocolServer.cpp
+    src/JSONOutput.cpp
+    src/JSONRPCDispatcher.cpp
+    src/Logger.cpp
+    src/ProtocolHandlers.cpp
+)
 
-project(vscode-debug-protocol)
+set(LIB_HEADERS
+    include/DebugProtocolCallbacks.hpp
+    include/DebugProtocolServer.hpp
+    include/Handler.hpp
+    include/json.hpp
+    include/JSONOutput.hpp
+    include/JSONRPCDispatcher.hpp
+    include/Logger.hpp
+    include/ProtocolHandlers.hpp
+)
+
 find_package(Threads)
 
 # Boost
-find_package(Boost REQUIRED system thread serialization date_time regex  unit_test_framework REQUIRED)
-set (Boost_DEBUG true)
 
 if (NOT DEFINED     BOOST_ROOT        AND
 NOT DEFINED ENV{BOOST_ROOT}       AND
@@ -48,18 +70,10 @@ elseif (UNIX)
     set (BOOST_LIBRARYDIR "/home/rodrigo/dev/boost/stage/lib/")
     ADD_DEFINITIONS("-std=c++11")
 elseif (WIN32)
-    #set (BOOST_INCLUDEDIR "C:/local/boost_1_65_1" )
-    set (BOOST_INCLUDEDIR "C:/local/boost_1_65_1" )
-    #set (BOOST_LIBRARYDIR "C:/local/boost_1_65_1/lib64-msvc-14.1")
+    set (BOOST_ROOT "C:/local/boost_1_65_1" )
+    set (BOOST_LIBRARYDIR "C:/local/boost_1_65_1/stage/lib/")
 endif()
 endif()
-
-#set(SOURCE hello.cpp)
-set (Boost_NO_BOOST_CMAKE ON)
-#file(GLOB_RECURSE sources      src/*.cpp include/connect/*.h)
-file(GLOB_RECURSE sources      src/*.cpp)
-
-#add_executable(${PROJECT_NAME} ${SOURCE})
 
 ###############################################################################
 ## dependencies ###############################################################
@@ -67,19 +81,39 @@ file(GLOB_RECURSE sources      src/*.cpp)
 
 # this defines the variables Boost_LIBRARIES that contain all library names
 # that we need to link to 
+
 set (Boost_NO_SYSTEM_PATHS ON)
 set (Boost_USE_MULTITHREADED ON)
 set (Boost_USE_STATIC_LIBS ON)
 set (Boost_USE_STATIC_RUNTIME OFF)
 set (BOOST_ALL_DYN_LINK OFF)
+set (Boost_NO_BOOST_CMAKE ON)
+set (Boost_DEBUG true)
+find_package(Boost
+        REQUIRED
+        log_setup
+        log
+        filesystem
+        system
+        thread
+        serialization
+        date_time
+        regex
+        unit_test_framework
+        program_options
+        locale
+        REQUIRED)
 
+add_library( ${PROJECT_NAME} ${LIB_SOURCES} ${LIB_HEADERS} )
 include_directories(${Boost_INCLUDE_DIRS})
-add_executable(${PROJECT_NAME} ${sources} ${data})
+include_directories( include/)
 
-target_link_libraries(${PROJECT_NAME} 
+
+add_executable(testeDebug src/ZMain.cpp ${data} ${LIB_HEADERS})
+target_link_libraries(testeDebug
   ${Boost_LIBRARIES}
-  # here you can add any library dependencies
-        ${CMAKE_THREAD_LIBS_INIT}
+  ${PROJECT_NAME} 
+  ${CMAKE_THREAD_LIBS_INIT}
 )
 
 # End Boost
