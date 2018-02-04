@@ -5,8 +5,8 @@ namespace vscode_debug {
         InitializeHandler(JSONOutput &Output, ProtocolCallbacks &Callbacks)
                 : Handler(Output), Callbacks(Callbacks) {}
 
-        void handleMethod(Json Params, std::string ID) override {
-            Callbacks.onInitialize(ID, Output);
+        void handleMethod(std::string content) override {
+            Callbacks.onInitialize(content, Output);
         }
         /* void handleMethod(llvm::yaml::MappingNode *Params, StringRef ID) override {
            Callbacks.onInitialize(ID, Output);

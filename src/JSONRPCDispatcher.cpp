@@ -4,9 +4,9 @@ void JSONRPCDispatcher::registerHandler(std::string method, std::unique_ptr<Hand
 //assert(!Handlers.count(Method) && "Handler already registered!");
     Handlers[method] = std::move(H);
 }
-    static void callHandler(std::unique_ptr<Handler> &handle,Json pt)
+    static void callHandler(std::unique_ptr<Handler> &handle,std::string Content)
     {
-        handle->handleMethod(pt,"funciona");
+        handle->handleMethod(Content);
     }    
     
     bool JSONRPCDispatcher::call(boost::string_ref Content) 
@@ -25,7 +25,7 @@ void JSONRPCDispatcher::registerHandler(std::string method, std::unique_ptr<Hand
         
         if(it != Handlers.end() )
         {
-            callHandler(it->second ,request);
+            callHandler(it->second ,ss.str());
         }
         
         return true;

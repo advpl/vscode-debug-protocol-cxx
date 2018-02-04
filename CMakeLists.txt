@@ -39,6 +39,7 @@ set(LIB_SOURCES
     src/JSONRPCDispatcher.cpp
     src/Logger.cpp
     src/ProtocolHandlers.cpp
+    src/Protocol.cpp
 )
 
 set(LIB_HEADERS
@@ -50,6 +51,7 @@ set(LIB_HEADERS
     include/JSONRPCDispatcher.hpp
     include/Logger.hpp
     include/ProtocolHandlers.hpp
+    include/Protocol.hpp
 )
 
 find_package(Threads)

@@ -17,7 +17,7 @@ namespace vscode_debug {
       /// Called when the server receives a method call. This is supposed to return
       /// a result on Outs. The default implementation returns an "unknown method"
       /// error to the client and logs a warning.
-      virtual void handleMethod(Json Params, std::string ID)
+      virtual void handleMethod(std::string content)
       {
 
       }
