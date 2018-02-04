@@ -5,5 +5,7 @@ namespace vscode_debug {
         
 
     }
+    void DebugProtocolCallbacks::onLaunch(std::string ID, JSONOutput &Out) {
+    }
 
 }

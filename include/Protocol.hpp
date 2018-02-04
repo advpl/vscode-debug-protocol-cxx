@@ -3,7 +3,12 @@
 #include <string>
 #include <vector>
 #include "json.hpp"
-
+/**
+ * https://github.com/Microsoft/vscode-debugadapter-node/tree/master/protocol
+ * 
+ * 
+*/
+//Protocol Version 1.26
 namespace vscode_debug {
     //using boost::property_tree::ptree;
     using namespace std;
@@ -12,17 +17,20 @@ namespace vscode_debug {
     
 	/** Base class of requests, responses, and events. */
 	class ProtocolMessage {
-		public :
+		public:
             /** Sequence number. */
             int seq;
             /** Message type.
                 Values: 'request', 'response', 'event', etc.
             */
             string type;
+			ProtocolMessage(){};
+			ProtocolMessage(string ptype):type(ptype)
+			{};
 	};
     
     /** A client or server-initiated request. */
-	class Request:  ProtocolMessage {
+	class Request: public ProtocolMessage {
 		// type: 'request';
 		/** The command to execute. */
 		public:
@@ -30,7 +38,33 @@ namespace vscode_debug {
 		/** Object containing arguments for the command. */
 	    	//arguments?: any;
 	};
+	class ResponseBody{
+
+	};
+/** Response to a request. */
+	class Response: public ProtocolMessage {
+		public:
+			// type: 'response';
+			/** Sequence number of the corresponding request. */
+			int request_seq;
+			/** Outcome of the request. */
+			bool success;
+			/** The command requested. */
+			string command;
+			/** Contains error message if success == false. */
+			string message;
+			/** Contains request result if success is true and optional error details if success is false. */
+			ResponseBody body;
+			Response(Request &req) :ProtocolMessage("response")
+			{
+				success = true;
+				request_seq = req.seq;
+				command = req.command;
+
+			}
+	};
 	
+
 
 /** Arguments for 'initialize' request. */
 	struct InitializeRequestArguments {
@@ -54,13 +88,16 @@ namespace vscode_debug {
 		bool supportsVariablePaging;
 		/** Client supports the runInTerminal request. */
 		bool supportsRunInTerminalRequest;
+		InitializeRequestArguments() : linesStartAt1(),columnsStartAt1(),supportsVariableType(),supportsVariablePaging(),supportsRunInTerminalRequest()
+		{
+
+		}
 	};	
    
-	class InitializeRequest : Request {
+	class InitializeRequest : public Request {
 		// command: 'initialize';
-		public:
-		
-		InitializeRequestArguments arguments;
+		public:		
+			InitializeRequestArguments arguments;		
 	};
 /*
 	void to_json(json& j, const InitializeRequestArguments& p) {
@@ -105,6 +142,12 @@ namespace vscode_debug {
 
     /** Information about the capabilities of a debug adapter. */
     struct Capabilities {
+		Capabilities():supportsConfigurationDoneRequest(),supportsFunctionBreakpoints(),supportsConditionalBreakpoints(),supportsHitConditionalBreakpoints(),supportsEvaluateForHovers(),supportsStepBack(),supportsSetVariable(),
+		supportsRestartFrame(),supportsGotoTargetsRequest(),supportsStepInTargetsRequest(),supportsCompletionsRequest(),supportsModulesRequest(),supportsRestartRequest(),supportsExceptionOptions(),
+		supportsValueFormattingOptions(),supportsExceptionInfoRequest(),supportTerminateDebuggee(),supportsDelayedStackTraceLoading(),supportsLoadedSourcesRequest()
+		{
+
+		}
 		/** The debug adapter supports the configurationDoneRequest. */
 		bool supportsConfigurationDoneRequest;
 		/** The debug adapter supports function breakpoints. */
@@ -134,7 +177,7 @@ namespace vscode_debug {
 		/** The set of additional module information exposed by the debug adapter. */
 		vector <ColumnDescriptor> additionalModuleColumns;
 		/** Checksum algorithms supported by the debug adapter. */
-		//supportedChecksumAlgorithms?: ChecksumAlgorithm[];
+		vector <string> supportedChecksumAlgorithms; //?: ChecksumAlgorithm[];
 		/** The debug adapter supports the RestartRequest. In this case a client should not implement 'restart' by terminating and relaunching the adapter but by calling the RestartRequest. */
 		bool supportsRestartRequest;
 		/** The debug adapter supports 'exceptionOptions' on the setExceptionBreakpoints request. */
@@ -150,9 +193,59 @@ namespace vscode_debug {
 		/** The debug adapter supports the 'loadedSources' request. */
 		bool supportsLoadedSourcesRequest;
 	};
+
+	/** Arguments for 'launch' request. */
+	struct LaunchRequestArguments {
+		/** If noDebug is true the launch request should launch the program without enabling debugging. */
+		bool noDebug;
+	};
+	/** Launch request; value of command field is 'launch'. */
+	class LaunchRequest : Request {
+		// command: 'launch';
+		public:
+		LaunchRequestArguments arguments;	
+
+	};
+
+	/** Response to 'initialize' request. */
+	class InitializeResponse: public Response {
+		/** The capabilities of this debug adapter. */
+		public:
+			Capabilities body;
+			InitializeResponse(InitializeRequest &initreq) : Response((Request) initreq)
+			{}
+	};
+
+/** A structured message object. Used to return errors from requests. */
+	struct Message {
+		/** Unique identifier for the message. */
+		int id;//: number;
+		/** A format string for the message. Embedded variables have the form '{name}'.
+			If variable name starts with an underscore character, the variable does not contain user data (PII) and can be safely used for telemetry purposes.
+		*/
+		string format ;
+		/** An object used as a dictionary for looking up the variables in the format string. */
+		vector<string> variables;//variables?: { [key: string]: string; };
+		/** If true send to telemetry. */
+		bool sendTelemetry;//?: boolean;
+		/** If true show user. */
+		bool showUser;//?: boolean;
+		/** An optional url where additional information about this message can be found. */
+		string url;//?: string;
+		/** An optional label that is presented to the user as the UI for opening the url. */
+		string urlLabel;//?: string;
+	};
+
     void from_json(const json& j, ProtocolMessage& p);
 	void from_json(const json& j, Request& p);	
 	void from_json(const json& j, InitializeRequest& p);
+	void from_json(const json& j, LaunchRequest& p);
+	void from_json(const json& j, LaunchRequestArguments& p);
+	void to_json(json& j, const Capabilities& p);
+	void to_json(json& j, const Response& p);
+	void to_json(json& j, const InitializeResponse& p);
+	
+	
 }
 
     

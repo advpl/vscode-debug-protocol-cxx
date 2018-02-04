@@ -22,6 +22,34 @@ void to_json(json& j, const ProtocolMessage& p) {
             p.arguments = j.at("arguments").get<InitializeRequestArguments>();
 
      }
+    void from_json(const json& j, LaunchRequest& p)
+    {
+         from_json(j, (Request&) p );
+         
+         p.arguments = j.at("arguments").get<LaunchRequestArguments>();
+    }
+    void from_json(const json& j, LaunchRequestArguments& p)
+    {
+        if(j.find("noDebug")!= j.end())
+            p.noDebug = j.at("noDebug").get<bool>();
+            
+    }
+     void to_json(json& j, const Response& p)
+     {
+         to_json(j,(ProtocolMessage&) p );
+         j["request_seq"] = p.request_seq;
+         j["success"] = p.success;
+         j["command"] = p.command;
+         j["message"] = p.message;
+         
+            /*j.add()
+             int request_seq;			
+			bool success;
+			
+			string command;
+			
+			string message;*/
+     }
 
 
      void to_json(json& j, const InitializeRequestArguments& p) {
@@ -81,6 +109,11 @@ void to_json(json& j, const ProtocolMessage& p) {
 		{"supportTerminateDebuggee",p.supportTerminateDebuggee},
 		{"supportsDelayedStackTraceLoading",p.supportsDelayedStackTraceLoading},
 		{"supportsLoadedSourcesRequest",p.supportsLoadedSourcesRequest}};
+    }
+    void to_json(json& j, const InitializeResponse& p)
+    {
+        to_json(j,(Response&) p );
+        j["body"] =  p.body;
     }
 
     void from_json(const json& j, Capabilities& p) {

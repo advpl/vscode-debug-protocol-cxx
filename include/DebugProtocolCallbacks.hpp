@@ -13,7 +13,7 @@ namespace vscode_debug
         DebugProtocolCallbacks (DebugProtocolServer &LangServer): LangServer(LangServer) {}
         
         void onInitialize(std::string ID, JSONOutput &Out)  override;
-
+        void onLaunch(std::string ID, JSONOutput &Out) override ;
 
     private:
         DebugProtocolServer &LangServer;
