@@ -212,7 +212,7 @@ namespace vscode_debug {
 		/** The capabilities of this debug adapter. */
 		public:
 			Capabilities body;
-			InitializeResponse(InitializeRequest &initreq) : Response((Request) initreq)
+			InitializeResponse(InitializeRequest &initreq) : Response((Request&) initreq)
 			{}
 	};
 
