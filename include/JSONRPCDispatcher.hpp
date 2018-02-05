@@ -1,7 +1,7 @@
 #ifndef JSONRPCDISPATCHER_H
 #define JSONRPCDISPATCHER_H
 
-//#include <boost/utility/string_ref.hpp>
+#include <boost/utility/string_ref.hpp>
 //#include <boost/unordered_map.hpp>
 #include <unordered_map>
 //#include <boost/property_tree/ptree.hpp>

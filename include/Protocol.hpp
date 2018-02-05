@@ -13,7 +13,7 @@ namespace vscode_debug {
     //using boost::property_tree::ptree;
     using namespace std;
     using json = nlohmann::json;
-    
+	static int _sequenceNumber = 1;
     
 	/** Base class of requests, responses, and events. */
 	class ProtocolMessage {
@@ -25,7 +25,7 @@ namespace vscode_debug {
             */
             string type;
 			ProtocolMessage(){};
-			ProtocolMessage(string ptype):type(ptype)
+			ProtocolMessage(string ptype,int pseq):type(ptype),seq(pseq)
 			{};
 	};
     
@@ -41,6 +41,7 @@ namespace vscode_debug {
 	class ResponseBody{
 
 	};
+
 /** Response to a request. */
 	class Response: public ProtocolMessage {
 		public:
@@ -55,12 +56,17 @@ namespace vscode_debug {
 			string message;
 			/** Contains request result if success is true and optional error details if success is false. */
 			ResponseBody body;
-			Response(Request &req) :ProtocolMessage("response")
+			Response(Request &req) :ProtocolMessage("response",req.seq)
 			{
 				success = true;
 				request_seq = req.seq;
 				command = req.command;
 
+			}
+			void SetErrorBody(string msg, ResponseBody bdy ) {
+				success = false;
+				message = msg;
+				body = bdy;
 			}
 	};
 	
@@ -234,6 +240,21 @@ namespace vscode_debug {
 		string url;//?: string;
 		/** An optional label that is presented to the user as the UI for opening the url. */
 		string urlLabel;//?: string;
+		public:
+			Message(){};
+		 	Message(int id, string format):id(id),format(format),showUser(true),sendTelemetry(false) {
+				 
+				 }
+				 
+			Message(int id, string format, vector<string>arguments,bool user, bool telemetry):id(id),format(format),showUser(user),sendTelemetry(telemetry) {
+			
+			}
+	};
+		class ErrorResponseBody : public ResponseBody {
+		public:
+			Message error;
+			ErrorResponseBody(Message error):error(error) {			
+		}
 	};
 
     void from_json(const json& j, ProtocolMessage& p);
@@ -244,7 +265,7 @@ namespace vscode_debug {
 	void to_json(json& j, const Capabilities& p);
 	void to_json(json& j, const Response& p);
 	void to_json(json& j, const InitializeResponse& p);
-	
+	void to_json(json& j, const ProtocolMessage& p);
 	
 }
 

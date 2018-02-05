@@ -1,6 +1,6 @@
 #include "Protocol.hpp"
-namespace vscode_debug {
-void to_json(json& j, const ProtocolMessage& p) {
+namespace vscode_debug {    
+    void to_json(json& j, const ProtocolMessage& p) {
         j = json{{"seq", p.seq}, {"type", p.type}};
     }
     void from_json(const json& j, ProtocolMessage& p) {
