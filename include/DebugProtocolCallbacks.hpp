@@ -10,14 +10,10 @@ namespace vscode_debug
     class DebugProtocolCallbacks : public ProtocolCallbacks 
     {
     public:
-        DebugProtocolCallbacks (DebugProtocolServer &LangServer): LangServer(LangServer) {}
-        
+        DebugProtocolCallbacks():ProtocolCallbacks() {}
         void onInitialize(std::string content)  override;
         void onLaunch(std::string content) override ;
-        void onDisconnect(std::string content) override;
-
-    private:
-        DebugProtocolServer &LangServer;
+        void onDisconnect(std::string content) override;        
     };
 
 

@@ -13,10 +13,6 @@
 #include "JSONOutput.hpp"
 
 namespace vscode_debug {
-    class DebugProtocolServer {
-
-        public:
-             void run (std::istream &input, JSONOutput &Out, JSONRPCDispatcher &Dispatcher);
-    };
+    void run (std::istream &input, JSONOutput &Out, JSONRPCDispatcher &Dispatcher,bool &IsDone);
 }
 #endif

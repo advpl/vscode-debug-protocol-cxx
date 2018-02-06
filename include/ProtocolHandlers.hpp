@@ -10,7 +10,8 @@ namespace vscode_debug {
     class ProtocolCallbacks {
     public:
       virtual ~ProtocolCallbacks() = default;
-      ProtocolCallbacks(){};
+      bool IsDone;
+      ProtocolCallbacks():IsDone(false){};
       void setJsonOutPut(JSONOutput *Out);      
       virtual void onInitialize(std::string content) = 0;
       virtual void onLaunch(std::string content) = 0;
@@ -23,6 +24,8 @@ namespace vscode_debug {
       void SendMessage(ProtocolMessage message);*/
       JSONOutput *OutPut;
     };
+    
+        
     
     void registerCallbackHandlers(JSONRPCDispatcher &Dispatcher, JSONOutput &Out,
         ProtocolCallbacks &Callbacks);
