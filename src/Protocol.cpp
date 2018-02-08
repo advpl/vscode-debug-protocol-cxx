@@ -121,5 +121,17 @@ namespace vscode_debug {
         p.supportsFunctionBreakpoints = j.at("supportsFunctionBreakpoints").get<bool>();
         p.supportsConditionalBreakpoints = j.at("supportsConditionalBreakpoints").get<bool>();
     }
+    void to_json(json& j, const Event& p){
+        to_json(j,(ProtocolMessage&) p );
+        j["event"] = p.event;        
+    }
+	void to_json(json& j, const TerminatedEvent& p)
+    {
+        to_json(j,(Event&) p );        
+    }
+    void to_json(json& j, const InitializedEvent& p)
+    {
+        to_json(j,(Event&) p );        
+    }
 
 }

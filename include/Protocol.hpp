@@ -12,8 +12,7 @@
 namespace vscode_debug {
     //using boost::property_tree::ptree;
     using namespace std;
-    using json = nlohmann::json;
-	static int _sequenceNumber = 1;
+    using json = nlohmann::json;	
     
 	/** Base class of requests, responses, and events. */
 	class ProtocolMessage {
@@ -27,6 +26,7 @@ namespace vscode_debug {
 			ProtocolMessage(){};
 			ProtocolMessage(string ptype,int pseq):type(ptype),seq(pseq)
 			{};
+			ProtocolMessage(string ptype):type(ptype){};
 	};
     
     /** A client or server-initiated request. */
@@ -69,7 +69,46 @@ namespace vscode_debug {
 				body = bdy;
 			}
 	};
-	
+	/** Server-initiated event. */	
+	class Event: public ProtocolMessage {
+		public:
+			Event(string et) :ProtocolMessage("event"){
+				event= et;
+			}
+			string event;
+	};
+
+
+/** Event message for 'initialized' event type.
+		This event indicates that the debug adapter is ready to accept configuration requests (e.g. SetBreakpointsRequest, SetExceptionBreakpointsRequest).
+		A debug adapter is expected to send this event when it is ready to accept configuration requests (but not before the InitializeRequest has finished).
+		The sequence of events/requests is as follows:
+		- adapters sends InitializedEvent (after the InitializeRequest has returned)
+		- frontend sends zero or more SetBreakpointsRequest
+		- frontend sends one SetFunctionBreakpointsRequest
+		- frontend sends a SetExceptionBreakpointsRequest if one or more exceptionBreakpointFilters have been defined (or if supportsConfigurationDoneRequest is not defined or false)
+		- frontend sends other future configuration requests
+		- frontend sends one ConfigurationDoneRequest to indicate the end of the configuration
+	*/
+	class InitializedEvent : public Event
+	{
+		public:
+			InitializedEvent():Event("initialized"){
+
+			}
+	};
+
+	/** Event message for 'terminated' event types.
+		The event indicates that debugging of the debuggee has terminated.
+	*/
+	 class TerminatedEvent : public Event
+	{
+		public:
+			TerminatedEvent(): Event("terminated"){
+
+			}
+	};
+
 
 
 /** Arguments for 'initialize' request. */
@@ -266,6 +305,9 @@ namespace vscode_debug {
 	void to_json(json& j, const Response& p);
 	void to_json(json& j, const InitializeResponse& p);
 	void to_json(json& j, const ProtocolMessage& p);
+	void to_json(json& j, const Event& p);
+	void to_json(json& j, const TerminatedEvent& p); 
+	void to_json(json& j, const InitializedEvent& p);
 	
 }
 

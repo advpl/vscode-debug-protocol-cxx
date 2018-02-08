@@ -11,6 +11,7 @@ namespace vscode_debug {
     public:
       virtual ~ProtocolCallbacks() = default;
       bool IsDone;
+      int _sequenceNumber = 1;
       ProtocolCallbacks():IsDone(false){};
       void setJsonOutPut(JSONOutput *Out);      
       virtual void onInitialize(std::string content) = 0;
@@ -23,6 +24,7 @@ namespace vscode_debug {
       
       void SendMessage(ProtocolMessage message);*/
       JSONOutput *OutPut;
+      int getNextSequenceNumber();
     };
     
         

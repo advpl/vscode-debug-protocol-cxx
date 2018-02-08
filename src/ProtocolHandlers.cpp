@@ -36,6 +36,12 @@ namespace vscode_debug {
     void ProtocolCallbacks::setJsonOutPut(JSONOutput *Out) {
         OutPut= Out;
     }
+    int ProtocolCallbacks::getNextSequenceNumber()
+    {
+        _sequenceNumber++;
+        return _sequenceNumber;
+
+    }
   /*  void ProtocolCallbacks::SendResponse(Response response)
     {
         Json j = response;
