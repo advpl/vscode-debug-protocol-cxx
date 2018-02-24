@@ -57,7 +57,7 @@ set(LIB_HEADERS
 find_package(Threads)
 
 # Boost
-
+message("------------rodrigo-------------------------")
 if (NOT DEFINED     BOOST_ROOT        AND
 NOT DEFINED ENV{BOOST_ROOT}       AND
 NOT DEFINED     BOOST_INCLUDEDIR  AND
@@ -65,7 +65,9 @@ NOT DEFINED ENV{BOOST_INCLUDEDIR} AND
 NOT DEFINED     BOOST_LIBRARYDIR  AND
 NOT DEFINED ENV{BOOST_LIBRARYDIR})
 if (APPLE)
-    set(BOOST_ROOT "../../../boost/boost_1_54_0/mac")
+    message("------------apple-------------------------")
+    set(BOOST_ROOT "/usr/local/boost_1_65_1/")
+    set (BOOST_INCLUDEDIR "/usr/local/boost_1_65_1/boost/")
 elseif (UNIX)
     set(BOOST_ROOT "/home/rodrigo/dev/boost/")
     set (BOOST_INCLUDEDIR "/home/rodrigo/dev/boost/")
@@ -90,7 +92,7 @@ set (Boost_USE_STATIC_LIBS ON)
 set (Boost_USE_STATIC_RUNTIME OFF)
 set (BOOST_ALL_DYN_LINK OFF)
 set (Boost_NO_BOOST_CMAKE ON)
-set (Boost_DEBUG true)
+#set (Boost_DEBUG true)
 find_package(Boost
         REQUIRED
         log_setup
