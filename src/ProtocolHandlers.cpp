@@ -31,7 +31,16 @@ namespace vscode_debug {
     private:
         ProtocolCallbacks &Callbacks;
     };
+    struct SetBreakPointtHandler : Handler {
+        SetBreakPointtHandler(ProtocolCallbacks &Callbacks)
+                : Handler(), Callbacks(Callbacks) {}
 
+        void handleMethod(std::string content) override {
+            Callbacks.onSetBreakPoint(content);
+        }        
+    private:
+        ProtocolCallbacks &Callbacks;
+    };
     
     void ProtocolCallbacks::setJsonOutPut(JSONOutput *Out) {
         OutPut= Out;
@@ -71,6 +80,7 @@ namespace vscode_debug {
         Dispatcher.registerHandler("initialize", std::make_unique<InitializeHandler>( Callbacks));
         Dispatcher.registerHandler("launch", std::make_unique<LaunchHandler>(Callbacks));
         Dispatcher.registerHandler("disconnect", std::make_unique<DisconnectHandler>(Callbacks));
+        Dispatcher.registerHandler("setBreakpoints", std::make_unique<SetBreakPointtHandler>(Callbacks));
         Callbacks.setJsonOutPut(&Out);
         //virtual void onLaunch(std::string content, JSONOutput &Out) = 0;
     }

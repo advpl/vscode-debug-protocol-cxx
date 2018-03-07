@@ -17,6 +17,7 @@ namespace vscode_debug {
       virtual void onInitialize(std::string content) = 0;
       virtual void onLaunch(std::string content) = 0;
       virtual void onDisconnect(std::string content) = 0;
+      virtual void onSetBreakPoint(std::string content) =0;
       void PrepareErrorResponse(Response &response, int id, string format);
       /*void SendErrorResponse(Response response, int id, string format, vector<string>arguments,bool user, bool telemetry);
       void SendErrorResponse(Response response, int id, string format);

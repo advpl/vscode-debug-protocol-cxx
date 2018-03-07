@@ -10,4 +10,8 @@ namespace vscode_debug {
     void DebugProtocolCallbacks::onDisconnect(std::string content) {
 
     }
+    void DebugProtocolCallbacks::onSetBreakPoint(std::string content)
+    {
+        
+    }
 }

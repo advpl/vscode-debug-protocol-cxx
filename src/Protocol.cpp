@@ -64,6 +64,36 @@ namespace vscode_debug {
                  {"supportsRunInTerminalRequest", p.supportsRunInTerminalRequest}};
 
     }
+    void from_json(const json& j, Checksum& p)
+    {
+        p.algorithm = j.at("algorithm").get<string>();
+        p.checksum = j.at("checksum").get<string>();
+    }		
+    void from_json(const json& j, Source& p)
+    {
+        if(j.find("name")!= j.end())
+            p.name = j.at("name").get<string>();
+        if(j.find("path")!= j.end())
+            p.path = j.at("path").get<string>();            
+        if(j.find("sourceReference")!= j.end())
+            p.sourceReference = j.at("sourceReference").get<int>();
+        if(j.find("presentationHint")!= j.end())
+            p.presentationHint = j.at("presentationHint").get<string>();
+        if(j.find("origin")!= j.end())
+            p.origin = j.at("origin").get<string>();
+        if(j.find("sources")!= j.end())        
+            p.sources = j["sources"].get<std::vector<Source>>();
+        if(j.find("checksums")!= j.end())        
+            p.checksums = j["checksums"].get<std::vector<Checksum>>();
+/** An optional list of sources that are related to this source. These may be the source that generated this source. */
+		//sources?: Source[];
+		/** Optional data that a debug adapter might want to loop through the client. The client should leave the data intact and persist it across sessions. The client should not interpret the data. */
+		//adapterData?: any;
+		/** The checksums associated with this file. */
+		//checksums?: Checksum[];
+
+
+    }
     void from_json(const json& j, InitializeRequestArguments& p) {        
 		p.adapterID = j.at("adapterID").get<string>();
         if(j.find("clientID")!= j.end())
@@ -134,4 +164,29 @@ namespace vscode_debug {
         to_json(j,(Event&) p );        
     }
 
+
+    void from_json(const json& j, SourceBreakpoint& p)
+    {
+        p.line = j.at("line").get<int>();
+        if(j.find("column")!= j.end())
+            p.column = j.at("column").get<int>();   
+        if(j.find("condition")!= j.end())
+            p.condition = j.at("condition").get<string>();   
+        if(j.find("hitCondition")!= j.end())
+            p.hitCondition = j.at("hitCondition").get<string>();
+        if(j.find("logMessage")!= j.end())
+            p.logMessage = j.at("logMessage").get<string>();   
+    }
+    void from_json(const json& j, SetBreakpointsArguments& p)
+    {
+        p.source = j.at("source").get<Source>();
+        p.breakpoints = j["breakpoints"].get<std::vector<SourceBreakpoint>>();
+        p.lines = j["lines"].get<std::vector<int>>();
+        if(j.find("sourceModified")!= j.end())
+            p.sourceModified = j.at("sourceModified").get<bool>();
+    }
+    void from_json(const json& j, SetBreakpointsRequest& p) {
+            from_json(j, (Request&) p );
+            p.arguments = j.at("arguments").get<SetBreakpointsArguments>();
+     }
 }

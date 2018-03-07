@@ -155,6 +155,14 @@ namespace vscode_debug {
     }
 */
 
+/** The checksum of an item calculated by the specified algorithm. */
+	struct Checksum {
+		/** The algorithm used to calculate this checksum. */
+		string algorithm; //: ChecksumAlgorithm;
+		/** Value of the checksum. */
+		string checksum;
+	};
+
     //vector<string> ChecksumAlgorithm 
     //ChecksumAlgorithm = 'MD5' | 'SHA1' | 'SHA256' | 'timestamp';
     
@@ -296,11 +304,123 @@ namespace vscode_debug {
 		}
 	};
 
-    void from_json(const json& j, ProtocolMessage& p);
+	/** A Source is a descriptor for source code. It is returned from the debug adapter as part of a StackFrame and it is used by clients when specifying breakpoints. */
+	struct Source {
+		/** The short name of the source. Every source returned from the debug adapter has a name. When sending a source to the debug adapter this name is optional. */
+		string name;
+		/** The path of the source to be shown in the UI. It is only used to locate and load the content of the source if no sourceReference is specified (or its vaule is 0). */
+		string path;
+		/** If sourceReference > 0 the contents of the source must be retrieved through the SourceRequest (even if a path is specified). A sourceReference is only valid for a session, so it must not be used to persist a source. */
+		int sourceReference;
+		/** An optional hint for how to present the source in the UI. A value of 'deemphasize' can be used to indicate that the source is not available or that it is skipped on stepping. */
+		string presentationHint; // ?: 'normal' | 'emphasize' | 'deemphasize';
+		/** The (optional) origin of this source: possible values 'internal module', 'inlined content from source map', etc. */
+		string origin;
+		/** An optional list of sources that are related to this source. These may be the source that generated this source. */
+		vector<Source> sources;
+		/** Optional data that a debug adapter might want to loop through the client. The client should leave the data intact and persist it across sessions. The client should not interpret the data. */
+		string adapterData; //?: any;
+		/** The checksums associated with this file. */
+		vector<Checksum> checksums;
+	};
+
+
+	/** Information about a Breakpoint created in setBreakpoints or setFunctionBreakpoints. */
+	struct Breakpoint {
+		/** An optional unique identifier for the breakpoint. */
+		int id;
+		/** If true breakpoint could be set (but not necessarily at the desired location). */
+		bool verified;
+		/** An optional message about the state of the breakpoint. This is shown to the user and can be used to explain why a breakpoint could not be verified. */
+		string message;
+		/** The source where the breakpoint is located. */
+		Source source;
+		/** The start line of the actual range covered by the breakpoint. */
+		int line;
+		/** An optional start column of the actual range covered by the breakpoint. */
+		int column;
+		/** An optional end line of the actual range covered by the breakpoint. */
+		int endLine;
+		/** An optional end column of the actual range covered by the breakpoint. If no end line is given, then the end column is assumed to be in the start line. */
+		int endColumn;
+	};
+
+	/** Event message for 'breakpoint' event type.
+		The event indicates that some information about a breakpoint has changed.
+	*/
+	class BreakpointEvent: public Event {
+		public:
+			BreakpointEvent():Event("breakpoint"){				
+			}
+			/** The reason for the event.
+				Values: 'changed', 'new', 'removed', etc.
+			*/
+			string reason;
+			/** The breakpoint. */
+			Breakpoint breakpoint;
+	};	
+		/** Properties of a breakpoint or logpoint passed to the setBreakpoints request. */
+	struct SourceBreakpoint {
+		/** The source line of the breakpoint or logpoint. */
+		int line;
+		/** An optional source column of the breakpoint. */
+		int column;
+		/** An optional expression for conditional breakpoints. */
+		string condition;
+		/** An optional expression that controls how many hits of the breakpoint are ignored. The backend is expected to interpret the expression as needed. */
+		string hitCondition;
+		/** If this attribute exists and is non-empty, the backend must not 'break' (stop) but log the message instead. Expressions within {} are interpolated. */
+		string logMessage;
+	};
+	/** Arguments for 'setBreakpoints' request. */
+	struct SetBreakpointsArguments {
+		/** The source location of the breakpoints; either source.path or source.reference must be specified. */
+		Source source;
+		/** The code locations of the breakpoints. */
+		vector<SourceBreakpoint>breakpoints;
+		/** Deprecated: The code locations of the breakpoints. */
+		vector<int> lines;
+		/** A value of true indicates that the underlying source has been modified which results in new breakpoint locations. */
+		bool sourceModified;
+	};
+
+	/** SetBreakpoints request; value of command field is 'setBreakpoints'.
+		Sets multiple breakpoints for a single source and clears all previous breakpoints in that source.
+		To clear all breakpoint for a source, specify an empty array.
+		When a breakpoint is hit, a StoppedEvent (event type 'breakpoint') is generated.
+	*/
+	class SetBreakpointsRequest: public Request {
+		// command: 'setBreakpoints';
+		public:
+			SetBreakpointsArguments arguments;
+	};
+
+	/** Response to 'setBreakpoints' request.
+		Returned is information about each breakpoint created by this request.
+		This includes the actual code location and whether the breakpoint could be verified.
+		The breakpoints returned are in the same order as the elements of the 'breakpoints'
+		(or the deprecated 'lines') in the SetBreakpointsArguments.
+	*/
+	class SetBreakpointsResponse: public Response {
+		/** The capabilities of this debug adapter. */
+		public:
+			//Capabilities body;
+			vector<Breakpoint> breakpoints;
+			SetBreakpointsResponse(SetBreakpointsResponse &initreq) : Response((Request&) initreq)
+			{}
+	};	
+
+	void from_json(const json& j, SetBreakpointsRequest& p);
+	void from_json(const json& j, SourceBreakpoint& p);
+	void from_json(const json& j, SetBreakpointsArguments& p);
+	void from_json(const json& j, Checksum& p);
+    void from_json(const json& j, Source& p);
+	void from_json(const json& j, ProtocolMessage& p);
 	void from_json(const json& j, Request& p);	
 	void from_json(const json& j, InitializeRequest& p);
 	void from_json(const json& j, LaunchRequest& p);
 	void from_json(const json& j, LaunchRequestArguments& p);
+	
 	void to_json(json& j, const Capabilities& p);
 	void to_json(json& j, const Response& p);
 	void to_json(json& j, const InitializeResponse& p);

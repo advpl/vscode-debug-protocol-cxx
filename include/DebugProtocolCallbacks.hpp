@@ -13,7 +13,8 @@ namespace vscode_debug
         DebugProtocolCallbacks():ProtocolCallbacks() {}
         void onInitialize(std::string content)  override;
         void onLaunch(std::string content) override ;
-        void onDisconnect(std::string content) override;        
+        void onDisconnect(std::string content) override;
+        void onSetBreakPoint(std::string content) override;
     };
 
 
