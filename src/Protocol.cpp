@@ -116,6 +116,28 @@ namespace vscode_debug {
 
     }
     using nlohmann::json;
+    void to_json(json& j, const Breakpoint& p)
+    {
+        /*j = json{{"verified", p.verified},
+                 {"message", p.message},
+                 {"source", p.source},
+                 {"line", p.line},
+                 {"column", p.column},
+                 {"endLine", p.endLine},
+                 {"endColumn", p.endColumn}}*/
+        j = json{{"verified", p.verified},                 
+                 {"line", p.line}};
+      
+    }
+    void to_json(json& j, const SetBreakpointsResponseBody& p)
+    {
+        j["breakpoints"] = p.breakpoints;
+    }
+    void to_json(json& j, const SetBreakpointsResponse& p)
+    {
+          j["body"] =  p.body;
+    }
+    
     void to_json(json& j, const Capabilities& p) {
         j = json{{"supportsConfigurationDoneRequest", p.supportsConfigurationDoneRequest},
                  {"supportsFunctionBreakpoints", p.supportsFunctionBreakpoints},

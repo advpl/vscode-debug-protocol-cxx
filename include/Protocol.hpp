@@ -343,6 +343,13 @@ namespace vscode_debug {
 		int endLine;
 		/** An optional end column of the actual range covered by the breakpoint. If no end line is given, then the end column is assumed to be in the start line. */
 		int endColumn;
+		Breakpoint(){
+			id = -1;
+			line = -1;
+			column = -1;
+			endLine = -1;
+			endColumn =-1;
+		}
 	};
 
 	/** Event message for 'breakpoint' event type.
@@ -394,7 +401,10 @@ namespace vscode_debug {
 		public:
 			SetBreakpointsArguments arguments;
 	};
-
+	class SetBreakpointsResponseBody : public ResponseBody{
+		public:
+			vector<Breakpoint> breakpoints;
+	};
 	/** Response to 'setBreakpoints' request.
 		Returned is information about each breakpoint created by this request.
 		This includes the actual code location and whether the breakpoint could be verified.
@@ -405,7 +415,7 @@ namespace vscode_debug {
 		/** The capabilities of this debug adapter. */
 		public:
 			//Capabilities body;
-			vector<Breakpoint> breakpoints;
+			SetBreakpointsResponseBody body;
 			SetBreakpointsResponse(SetBreakpointsResponse &initreq) : Response((Request&) initreq)
 			{}
 	};	
@@ -428,6 +438,12 @@ namespace vscode_debug {
 	void to_json(json& j, const Event& p);
 	void to_json(json& j, const TerminatedEvent& p); 
 	void to_json(json& j, const InitializedEvent& p);
+
+	void to_json(json& j, const SetBreakpointsResponseBody& p);
+	void to_json(json& j, const SetBreakpointsResponse& p);
+	void to_json(json& j, const Breakpoint& p);
+	
+	
 	
 }
 
