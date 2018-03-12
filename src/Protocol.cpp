@@ -94,6 +94,17 @@ namespace vscode_debug {
 
 
     }
+    void from_json(const json& j, ConfigurationDoneRequest& p)
+    {
+        from_json(j, (Request&) p );
+        if(j.find("arguments")!= j.end())
+            p.arguments = j.at("arguments").get<ConfigurationDoneArguments>();
+    }
+	
+    void from_json(const json& j, ConfigurationDoneArguments& p)
+    {
+
+    }
     void from_json(const json& j, InitializeRequestArguments& p) {        
 		p.adapterID = j.at("adapterID").get<string>();
         if(j.find("clientID")!= j.end())

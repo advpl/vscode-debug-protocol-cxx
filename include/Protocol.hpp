@@ -144,6 +144,21 @@ namespace vscode_debug {
 		public:		
 			InitializeRequestArguments arguments;		
 	};
+	/** Arguments for 'configurationDone' request.
+		The configurationDone request has no standardized attributes.
+	*/
+	class ConfigurationDoneArguments {
+	};
+
+
+	/** ConfigurationDone request; value of command field is 'configurationDone'.
+		The client of the debug protocol must send this request at the end of the sequence of configuration requests (which was started by the InitializedEvent).
+	*/
+	class ConfigurationDoneRequest : public Request {
+		// command: 'configurationDone';
+		public:		
+			ConfigurationDoneArguments arguments;		
+	};
 /*
 	void to_json(json& j, const InitializeRequestArguments& p) {
         j = json{{"seq", p.seq}, {"type", p.type}};
@@ -428,6 +443,10 @@ namespace vscode_debug {
 	void from_json(const json& j, ProtocolMessage& p);
 	void from_json(const json& j, Request& p);	
 	void from_json(const json& j, InitializeRequest& p);
+	void from_json(const json& j, ConfigurationDoneRequest& p);
+	void from_json(const json& j, ConfigurationDoneArguments& p);
+
+	
 	void from_json(const json& j, LaunchRequest& p);
 	void from_json(const json& j, LaunchRequestArguments& p);
 	

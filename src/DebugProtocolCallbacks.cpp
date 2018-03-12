@@ -5,6 +5,8 @@ namespace vscode_debug {
         
 
     }
+    void DebugProtocolCallbacks::onConfigurationDone(std::string ID) {
+    }
     void DebugProtocolCallbacks::onLaunch(std::string ID) {
     }
     void DebugProtocolCallbacks::onDisconnect(std::string content) {
