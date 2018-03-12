@@ -196,6 +196,21 @@ namespace vscode_debug {
     {
         to_json(j,(Event&) p );        
     }
+    void to_json(json& j, const StoppedEvent& p)
+    {
+        to_json(j,(Event&) p );        
+        j["body"] = p.body;
+    }
+    void to_json(json& j, const StoppedEventBody& p)
+    {
+        j = json{{"reason", p.reason},{"allThreadsStopped", p.allThreadsStopped}};
+        if(!p.description.empty())
+            j["description"] = p.description;
+        if(p.threadId > 0 )
+            j["threadId"] = p.threadId;
+        if(!p.text.empty())
+            j["text"] = p.text;
+    }
 
 
     void from_json(const json& j, SourceBreakpoint& p)

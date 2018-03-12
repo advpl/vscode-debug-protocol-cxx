@@ -97,6 +97,38 @@ namespace vscode_debug {
 
 			}
 	};
+	struct StoppedEventBody
+	{
+		/** The reason for the event.
+				For backward compatibility this string is shown in the UI if the 'description' attribute is missing (but it must not be translated).
+				Values: 'step', 'breakpoint', 'exception', 'pause', 'entry', etc.
+			*/
+			string reason;
+			/** The full reason for the event, e.g. 'Paused on exception'. This string is shown in the UI as is. */
+			string description; //op
+			/** The thread which was stopped. */
+			int threadId;//op
+			/** Additional information. E.g. if reason is 'exception', text contains the exception name. This string is shown in the UI. */
+			string text;
+			/** If allThreadsStopped is true, a debug adapter can announce that all threads have stopped.
+				*  The client should use this information to enable that all threads can be expanded to access their stacktraces.
+				*  If the attribute is missing or false, only the thread with the given threadId can be expanded.
+			*/
+			bool allThreadsStopped;//op
+	};
+
+	/** Event message for 'stopped' event type.
+		The event indicates that the execution of the debuggee has stopped due to some condition.
+		This can be caused by a break point previously set, a stepping action has completed, by executing a debugger statement etc.
+	*/
+	class StoppedEvent : public Event {
+			public:
+				StoppedEventBody body;
+				StoppedEvent():Event("stopped"){
+				
+			}
+
+	};
 
 	/** Event message for 'terminated' event types.
 		The event indicates that debugging of the debuggee has terminated.
@@ -461,8 +493,9 @@ namespace vscode_debug {
 	void to_json(json& j, const SetBreakpointsResponseBody& p);
 	void to_json(json& j, const SetBreakpointsResponse& p);
 	void to_json(json& j, const Breakpoint& p);
-	
-	
+
+	void to_json(json& j, const StoppedEvent& p);	
+	void to_json(json& j, const StoppedEventBody& p);
 	
 }
 
