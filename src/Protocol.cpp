@@ -237,4 +237,44 @@ namespace vscode_debug {
             from_json(j, (Request&) p );
             p.arguments = j.at("arguments").get<SetBreakpointsArguments>();
      }
+     void from_json(const json& j, ContinueArguments& p)
+    {        
+		p.threadId = j.at("threadId").get<int>();            
+    }
+	void from_json(const json& j, ContinueRequest& p) {
+            from_json(j, (Request&) p );
+            p.arguments = j.at("arguments").get<ContinueArguments>();
+
+     }
+    void to_json(json& j, const ContinueResponse& p)
+    {
+        to_json(j,(Response&) p );
+        j["body"] =  p.body;
+    }	
+	
+    void to_json(json& j, const ContinueResponseBody& p)
+    {
+        j = json{{"allThreadsContinued", p.allThreadsContinued}};
+	}
+    void to_json(json& j, const ThreadsResponse& p)
+    {
+		to_json(j,(Response&) p );
+        j["body"] =  p.body;
+	}
+    void from_json(const json& j, ThreadsResponse& p) {
+            from_json(j, (Request&) p );
+     }
+
+
+    void to_json(json& j, const Thread& p)
+    {
+		j = json{{"id", p.id},
+		{"name", p.name}};        
+	}
+    void to_json(json& j, const ThreadsResponseBody& p)
+    {
+		j = json{{"threads", p.threads}};        
+	}
+
+
 }

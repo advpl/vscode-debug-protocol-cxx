@@ -182,6 +182,56 @@ namespace vscode_debug {
 	class ConfigurationDoneArguments {
 	};
 
+/** A Thread */
+	struct Thread {
+		/** Unique identifier for the thread. */
+		int id;
+		/** A name of the thread. */
+		string name;
+	};
+
+/** Thread request; value of command field is 'threads'.
+		The request retrieves a list of all threads.
+	*/
+	class ThreadsRequest : public Request {
+	
+		// command: 'threads';
+	};
+	struct ThreadsResponseBody
+	{
+		vector<Thread> threads;
+	};
+	/** Response to 'threads' request. */
+	class ThreadsResponse :public Response {
+		public:
+			/** All threads. */
+			ThreadsResponseBody body;
+			ThreadsResponse(ThreadsRequest &initreq) : Response((Request&) initreq)
+			{}
+		
+	};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	/** ConfigurationDone request; value of command field is 'configurationDone'.
 		The client of the debug protocol must send this request at the end of the sequence of configuration requests (which was started by the InitializedEvent).
@@ -191,6 +241,38 @@ namespace vscode_debug {
 		public:		
 			ConfigurationDoneArguments arguments;		
 	};
+	/** Arguments for 'continue' request. */
+	struct ContinueArguments {
+		/** Continue execution for the specified thread (if possible). If the backend cannot continue on a single thread but will continue on all threads, it should set the allThreadsContinued attribute in the response to true. */
+		int threadId;
+	};
+
+
+/** Continue request; value of command field is 'continue'.
+		The request starts the debuggee to run again.
+	*/
+	class ContinueRequest : public Request {	
+		// command: 'continue';
+		public:
+			ContinueArguments arguments;
+	};
+
+	struct ContinueResponseBody
+	{
+		bool allThreadsContinued;
+	};
+	/** Response to 'continue' request. */
+	class ContinueResponse: public Response {	
+		
+			public:
+			/** If true, the continue request has ignored the specified thread and continued all threads instead. If this attribute is missing a value of 'true' is assumed for backward compatibility. */
+				ContinueResponseBody body;
+				
+			ContinueResponse(ContinueRequest &initreq) : Response((Request&) initreq)
+			{}
+	};
+
+
 /*
 	void to_json(json& j, const InitializeRequestArguments& p) {
         j = json{{"seq", p.seq}, {"type", p.type}};
@@ -496,6 +578,18 @@ namespace vscode_debug {
 
 	void to_json(json& j, const StoppedEvent& p);	
 	void to_json(json& j, const StoppedEventBody& p);
+
+	void from_json(const json& j, ContinueRequest& p);
+	void from_json(const json& j, ContinueArguments& p);
+	void to_json(json& j, const ContinueResponse& p);
+	void to_json(json& j, const ContinueResponseBody& p);
+
+	void to_json(json& j, const ThreadsResponseBody& p);
+	void to_json(json& j, const Thread& p);
+	void to_json(json& j, const ThreadsResponse& p);
+	void from_json(const json& j, ThreadsResponse& p);
+
+
 	
 }
 

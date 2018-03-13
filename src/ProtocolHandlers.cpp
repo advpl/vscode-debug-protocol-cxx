@@ -33,6 +33,30 @@ namespace vscode_debug {
     private:
         ProtocolCallbacks &Callbacks;
     };
+    struct ContinueHandler : Handler {
+        ContinueHandler(ProtocolCallbacks &Callbacks)
+                : Handler(), Callbacks(Callbacks) {}
+
+        void handleMethod(std::string content) override {
+            Callbacks.onContinue(content);
+        }        
+    private:
+        ProtocolCallbacks &Callbacks;
+    };
+
+    struct ThreadHandler : Handler {
+        ThreadHandler(ProtocolCallbacks &Callbacks)
+                : Handler(), Callbacks(Callbacks) {}
+
+        void handleMethod(std::string content) override {
+            Callbacks.onThreads(content);
+        }        
+    private:
+        ProtocolCallbacks &Callbacks;
+    };
+
+
+
     struct DisconnectHandler : Handler {
         DisconnectHandler(ProtocolCallbacks &Callbacks)
                 : Handler(), Callbacks(Callbacks) {}
@@ -92,6 +116,8 @@ namespace vscode_debug {
         Dispatcher.registerHandler("initialize", std::make_unique<InitializeHandler>( Callbacks));
         Dispatcher.registerHandler("configurationDone", std::make_unique<ConfigurationDoneHandler>( Callbacks));
         Dispatcher.registerHandler("launch", std::make_unique<LaunchHandler>(Callbacks));
+        Dispatcher.registerHandler("threads", std::make_unique<ThreadHandler>(Callbacks));
+        Dispatcher.registerHandler("continue", std::make_unique<ContinueHandler>(Callbacks));
         Dispatcher.registerHandler("disconnect", std::make_unique<DisconnectHandler>(Callbacks));
         Dispatcher.registerHandler("setBreakpoints", std::make_unique<SetBreakPointtHandler>(Callbacks));
         Callbacks.setJsonOutPut(&Out);

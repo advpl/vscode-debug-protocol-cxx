@@ -9,11 +9,16 @@ namespace vscode_debug {
     }
     void DebugProtocolCallbacks::onLaunch(std::string ID) {
     }
+    void DebugProtocolCallbacks::onContinue(std::string ID) {
+    }
     void DebugProtocolCallbacks::onDisconnect(std::string content) {
 
     }
     void DebugProtocolCallbacks::onSetBreakPoint(std::string content)
     {
+        
+    }
+    void DebugProtocolCallbacks::onThreads(std::string content) {
         
     }
 }
