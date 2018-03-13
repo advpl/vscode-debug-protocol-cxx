@@ -22,6 +22,11 @@ namespace vscode_debug {
             p.arguments = j.at("arguments").get<InitializeRequestArguments>();
 
      }
+    void from_json(const json& j, StackTraceRequest& p) {
+            from_json(j, (Request&) p );
+            p.arguments = j.at("arguments").get<StackTraceArguments>();
+
+     }
     void from_json(const json& j, LaunchRequest& p)
     {
          from_json(j, (Request&) p );
@@ -64,6 +69,11 @@ namespace vscode_debug {
                  {"supportsRunInTerminalRequest", p.supportsRunInTerminalRequest}};
 
     }
+    void to_json(json& j, const Checksum& p)
+    {
+        j = json{{"algorithm", p.algorithm},
+            {"checksum", p.checksum}};
+    }		
     void from_json(const json& j, Checksum& p)
     {
         p.algorithm = j.at("algorithm").get<string>();
@@ -275,6 +285,82 @@ namespace vscode_debug {
     {
 		j = json{{"threads", p.threads}};        
 	}
+
+    void to_json(json& j, const Source& p) {
+        j = json{{"name", p.name},
+				 {"path", p.path},
+                 {"sourceReference", p.sourceReference}};                 
+		if(!p.presentationHint.empty())
+            j["presentationHint"] = p.presentationHint;
+		if(!p.origin.empty())
+            j["origin"] = p.origin;
+		j["sources"] = p.sources;
+		if(!p.adapterData.empty())
+            j["adapterData"] = p.adapterData;
+		j["checksums"] = p.checksums;
+		
+
+    }
+
+    void to_json(json& j, const StackFrame& p) {
+        j = json{{"id", p.id},
+                 {"name", p.name},
+                 {"line", p.line},
+                 {"column", p.column}};
+		if(p.endLine != -1)
+            j["endLine"] = p.endLine;		
+		if(p.endColumn != -1)
+            j["endColumn"] = p.endColumn;
+		if(!p.presentationHint.empty())
+            j["presentationHint"] = p.presentationHint;
+        if(!p.source.name.empty())
+            j["source"] = p.source;
+    }
+    void to_json(json& j, const StackTraceResponseBody& p)
+    {
+		j = json{{"stackFrames", p.stackFrames},
+				{"totalFrames",p.totalFrames}};
+	}
+	void to_json(json& j, const StackTraceResponse& p)
+    {
+		to_json(j,(Response&) p );
+        j["body"] =  p.body;
+	}
+    void from_json(const json& j, ValueFormat& p)
+    {   
+		if(j.find("hex")!= j.end())
+            p.hex = j.at("hex").get<bool>();
+	}
+    void from_json(const json& j, StackFrameFormat& p)
+    {        
+		
+        from_json(j,(ValueFormat) p);
+        if(j.find("parameters")!= j.end())
+            p.parameters = j.at("parameters").get<bool>();
+		if(j.find("parameterTypes")!= j.end())
+            p.parameterTypes = j.at("parameterTypes").get<bool>();
+		if(j.find("parameterNames")!= j.end())
+            p.parameterNames = j.at("parameterNames").get<bool>();
+		if(j.find("parameterValues")!= j.end())
+            p.parameterValues = j.at("parameterValues").get<bool>();
+		if(j.find("line")!= j.end())
+            p.line = j.at("line").get<bool>();
+		if(j.find("module")!= j.end())
+            p.module = j.at("module").get<bool>();
+		if(j.find("includeAll")!= j.end())
+            p.includeAll = j.at("includeAll").get<bool>();	
+	}
+	void from_json(const json& j, StackTraceArguments& p)
+    {
+        p.threadId = j.at("threadId").get<int>();
+		if(j.find("startFrame")!= j.end())
+            p.startFrame = j.at("startFrame").get<int>();
+		if(j.find("levels")!= j.end())
+            p.levels = j.at("levels").get<int>();
+		if(j.find("format")!= j.end())
+            p.format = j.at("format").get<StackFrameFormat>();
+            
+    }
 
 
 }

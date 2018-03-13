@@ -451,7 +451,38 @@ namespace vscode_debug {
 		string adapterData; //?: any;
 		/** The checksums associated with this file. */
 		vector<Checksum> checksums;
+		Source(){}
+		Source(string name,string path):name(name),path(path){}
 	};
+
+
+	/** A Stackframe contains the source location. */
+	struct StackFrame {
+		/** An identifier for the stack frame. It must be unique across all threads. This id can be used to retrieve the scopes of the frame with the 'scopesRequest' or to restart the execution of a stackframe. */
+		int id;//: number;
+		/** The name of the stack frame, typically a method name. */
+		string name;//: string;
+		/** The optional source of the frame. */
+		Source source;//?: Source;
+		/** The line within the file of the frame. If source is null or doesn't exist, line is 0 and must be ignored. */
+		int line;//: number;
+		/** The column within the line. If source is null or doesn't exist, column is 0 and must be ignored. */
+		int column;//: number;
+		/** An optional end line of the range covered by the stack frame. */
+		int endLine;//?: number;
+		/** An optional end column of the range covered by the stack frame. */
+		int endColumn;//?: number;
+		/** The module associated with this frame, if any. */
+		string moduleId;//?: number | string;
+		/** An optional hint for how to present this frame in the UI. A value of 'label' can be used to indicate that the frame is an artificial frame that is used as a visual label or separator. A value of 'subtle' can be used to change the appearance of a frame in a 'subtle' way. */
+		string presentationHint;//?: 'normal' | 'label' | 'subtle';
+		StackFrame()
+		{
+			endLine = -1;
+			endColumn = -1;
+		}
+	};
+	
 
 
 	/** Information about a Breakpoint created in setBreakpoints or setFunctionBreakpoints. */
@@ -548,11 +579,95 @@ namespace vscode_debug {
 			SetBreakpointsResponse(SetBreakpointsResponse &initreq) : Response((Request&) initreq)
 			{}
 	};	
+	class ValueFormat
+	{
+		public:
+			bool hex;
+	};
+	
+
+	/** Provides formatting information for a stack frame. */
+	class StackFrameFormat : public ValueFormat {
+		public:
+			/** Displays parameters for the stack frame. */
+			bool parameters;//?: boolean;
+			/** Displays the types of parameters for the stack frame. */
+			bool parameterTypes;//?: boolean;
+			/** Displays the names of parameters for the stack frame. */
+			bool parameterNames;//?: boolean;
+			/** Displays the values of parameters for the stack frame. */
+			bool parameterValues;//?: boolean;
+			/** Displays the line number of the stack frame. */
+			bool line;//?: boolean;
+			/** Displays the module of the stack frame. */
+			bool module;//?: boolean;
+			/** Includes all stack frames, including those the debug adapter might otherwise hide. */
+			bool includeAll;//?: boolean;
+	};
+	
+
+/** Arguments for 'stackTrace' request. */
+	struct StackTraceArguments {
+		/** Retrieve the stacktrace for this thread. */
+		int threadId;
+		/** The index of the first frame to return; if omitted frames start at 0. */
+		int startFrame;//op
+		/** The maximum number of frames to return. If levels is not specified or 0, all frames are returned. */
+		int levels;//op
+		/** Specifies details on how to format the stack frames. */
+		StackFrameFormat format;//?: ;
+	};
+	
+
+
+/** StackTrace request; value of command field is 'stackTrace'. The request returns a stacktrace from the current execution state. */
+	class StackTraceRequest : public Request {
+		public:
+		// command: 'stackTrace';
+			StackTraceArguments arguments;
+	};
+
+	struct StackTraceResponseBody
+	{
+		/** The frames of the stackframe. If the array has length zero, there are no stackframes available.
+			This means that there is no location information available.
+		*/
+		vector<StackFrame> stackFrames;
+		/** The total number of frames available. */
+		int totalFrames;
+	};
+
+	/** Response to 'stackTrace' request. */
+	class StackTraceResponse :public Response {
+		public:
+			StackTraceResponseBody body;
+			StackTraceResponse(StackTraceRequest &initreq) : Response((Request&) initreq)
+			{}
+		
+	};
+	
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	void from_json(const json& j, SetBreakpointsRequest& p);
 	void from_json(const json& j, SourceBreakpoint& p);
 	void from_json(const json& j, SetBreakpointsArguments& p);
 	void from_json(const json& j, Checksum& p);
+	void to_json(json& j, const Checksum& p);
     void from_json(const json& j, Source& p);
 	void from_json(const json& j, ProtocolMessage& p);
 	void from_json(const json& j, Request& p);	
@@ -588,8 +703,17 @@ namespace vscode_debug {
 	void to_json(json& j, const Thread& p);
 	void to_json(json& j, const ThreadsResponse& p);
 	void from_json(const json& j, ThreadsResponse& p);
-
-
+	
+	void to_json(json& j, const StackFrame& p);
+	void to_json(json& j, const Source& p);	
+	
+	void to_json(json& j, const StackTraceResponse& p);
+	void to_json(json& j, const StackTraceResponseBody& p);
+	
+	void from_json(const json& j, StackTraceRequest& p);
+	void from_json(const json& j, ValueFormat& p);
+	void from_json(const json& j, StackFrameFormat& p);
+	void from_json(const json& j, StackTraceArguments& p);
 	
 }
 

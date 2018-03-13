@@ -18,6 +18,7 @@ namespace vscode_debug
         void onThreads(std::string content) override ;
         void onDisconnect(std::string content) override;
         void onSetBreakPoint(std::string content) override;
+        void onStackTrace(std::string content) override;
     };
 
 

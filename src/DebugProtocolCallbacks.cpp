@@ -21,4 +21,8 @@ namespace vscode_debug {
     void DebugProtocolCallbacks::onThreads(std::string content) {
         
     }
+    void DebugProtocolCallbacks::onStackTrace(std::string content)
+    {
+        
+    }
 }
