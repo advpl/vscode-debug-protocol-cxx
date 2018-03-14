@@ -247,7 +247,7 @@ namespace vscode_debug {
             from_json(j, (Request&) p );
             p.arguments = j.at("arguments").get<SetBreakpointsArguments>();
      }
-     void from_json(const json& j, ContinueArguments& p)
+    void from_json(const json& j, ContinueArguments& p)
     {        
 		p.threadId = j.at("threadId").get<int>();            
     }
@@ -318,8 +318,9 @@ namespace vscode_debug {
     }
     void to_json(json& j, const StackTraceResponseBody& p)
     {
-		j = json{{"stackFrames", p.stackFrames},
-				{"totalFrames",p.totalFrames}};
+		j = json{{"stackFrames", p.stackFrames}};
+            if (p.totalFrames > 0 )
+				j["totalFrames"] = p.totalFrames;
 	}
 	void to_json(json& j, const StackTraceResponse& p)
     {
@@ -361,6 +362,32 @@ namespace vscode_debug {
             p.format = j.at("format").get<StackFrameFormat>();
             
     }
+    void from_json(const json& j, NextArguments& p)
+    {        
+		p.threadId = j.at("threadId").get<int>();            
+    }
+	void from_json(const json& j, NextRequest& p) {
+            from_json(j, (Request&) p );
+            p.arguments = j.at("arguments").get<NextArguments>();
+
+     }
+	void to_json(json& j, const NextResponse& p)
+    {
+        to_json(j,(Response&) p );        
+    }	
+    void from_json(const json& j, StepInArguments& p)
+    {        
+		p.threadId = j.at("threadId").get<int>();            
+    }
+	void from_json(const json& j, StepInRequest& p) {
+            from_json(j, (Request&) p );
+            p.arguments = j.at("arguments").get<StepInArguments>();
+
+     }
+	void to_json(json& j, const StepInResponse& p)
+    {
+        to_json(j,(Response&) p );        
+    }	
 
 
 }

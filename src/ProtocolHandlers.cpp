@@ -44,6 +44,32 @@ namespace vscode_debug {
         ProtocolCallbacks &Callbacks;
     };
 
+    struct NextHandler : Handler {
+        NextHandler(ProtocolCallbacks &Callbacks)
+                : Handler(), Callbacks(Callbacks) {}
+
+        void handleMethod(std::string content) override {
+            Callbacks.onNext(content);
+        }        
+    private:
+        ProtocolCallbacks &Callbacks;
+    };
+
+    struct StepInHandler : Handler {
+        StepInHandler(ProtocolCallbacks &Callbacks)
+                : Handler(), Callbacks(Callbacks) {}
+
+        void handleMethod(std::string content) override {
+            Callbacks.onStepInto(content);
+        }        
+    private:
+        ProtocolCallbacks &Callbacks;
+    };
+
+
+
+
+
     struct ThreadHandler : Handler {
         ThreadHandler(ProtocolCallbacks &Callbacks)
                 : Handler(), Callbacks(Callbacks) {}
@@ -130,6 +156,9 @@ namespace vscode_debug {
         Dispatcher.registerHandler("launch", std::make_unique<LaunchHandler>(Callbacks));
         Dispatcher.registerHandler("threads", std::make_unique<ThreadHandler>(Callbacks));
         Dispatcher.registerHandler("continue", std::make_unique<ContinueHandler>(Callbacks));
+        Dispatcher.registerHandler("next", std::make_unique<NextHandler>(Callbacks));
+        Dispatcher.registerHandler("stepIn", std::make_unique<StepInHandler>(Callbacks));
+        
         Dispatcher.registerHandler("disconnect", std::make_unique<DisconnectHandler>(Callbacks));
         Dispatcher.registerHandler("setBreakpoints", std::make_unique<SetBreakPointtHandler>(Callbacks));
         Dispatcher.registerHandler("stackTrace", std::make_unique<StackTraceHandler>(Callbacks));

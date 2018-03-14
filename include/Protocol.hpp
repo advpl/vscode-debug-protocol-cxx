@@ -247,7 +247,6 @@ namespace vscode_debug {
 		int threadId;
 	};
 
-
 /** Continue request; value of command field is 'continue'.
 		The request starts the debuggee to run again.
 	*/
@@ -271,18 +270,81 @@ namespace vscode_debug {
 			ContinueResponse(ContinueRequest &initreq) : Response((Request&) initreq)
 			{}
 	};
+	
+	/** Arguments for 'next' request. */
+	struct NextArguments {
+		/** Execute 'next' for this thread. */
+		int threadId;//: number;
+	};
+	/** Next request; value of command field is 'next'.
+		The request starts the debuggee to run again for one step.
+		The debug adapter first sends the NextResponse and then a StoppedEvent (event type 'step') after the step has completed.
+	*/
+	class NextRequest  : public Request {	
+		// command: 'next';
+		public:
+			NextArguments arguments;
+	};
+
+	
+
+	/** Response to 'next' request. This is just an acknowledgement, so no body field is required. */
+	class NextResponse : public Response {
+		public:			
+				
+			NextResponse (NextRequest &initreq) : Response((Request&) initreq)
+			{}
+	};
+
+/** Arguments for 'stepIn' request. */
+	struct StepInArguments {
+		/** Execute 'stepIn' for this thread. */
+		int threadId;//: number;
+		/** Optional id of the target to step into. */
+		int targetId;//?: number;
+	};
+
+/** StepIn request; value of command field is 'stepIn'.
+		The request starts the debuggee to step into a function/method if possible.
+		If it cannot step into a target, 'stepIn' behaves like 'next'.
+		The debug adapter first sends the StepInResponse and then a StoppedEvent (event type 'step') after the step has completed.
+		If there are multiple function/method calls (or other targets) on the source line,
+		the optional argument 'targetId' can be used to control into which target the 'stepIn' should occur.
+		The list of possible targets for a given source line can be retrieved via the 'stepInTargets' request.
+	*/
+	
+	class StepInRequest : public Request {
+		public:
+		// command: 'stepIn';
+			StepInArguments arguments;//: StepInArguments;
+	};
+
+	
+
+	/** Response to 'stepIn' request. This is just an acknowledgement, so no body field is required. */
+	class StepInResponse : public Response {
+		public:
+			StepInResponse (StepInRequest &initreq) : Response((Request&) initreq)
+			{}
+	};
+
+	
 
 
-/*
-	void to_json(json& j, const InitializeRequestArguments& p) {
-        j = json{{"seq", p.seq}, {"type", p.type}};
-    }
-    void from_json(const json& j, InitializeRequestArguments& p) {
-        p.seq = j.at("seq").get<int>();
-        p.type = j.at("type").get<string>();
 
-    }
-*/
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** The checksum of an item calculated by the specified algorithm. */
 	struct Checksum {
@@ -714,6 +776,17 @@ namespace vscode_debug {
 	void from_json(const json& j, ValueFormat& p);
 	void from_json(const json& j, StackFrameFormat& p);
 	void from_json(const json& j, StackTraceArguments& p);
+
+	void to_json(json& j, const NextResponse& p);
+	void from_json(const json& j, NextRequest& p);
+	void from_json(const json& j, NextArguments& p);
+
+	void to_json(json& j, const StepInResponse& p);
+	void from_json(const json& j, StepInRequest& p);
+	void from_json(const json& j, StepInArguments& p);
+
+
+	
 	
 }
 

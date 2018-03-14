@@ -25,4 +25,13 @@ namespace vscode_debug {
     {
         
     }
+    void DebugProtocolCallbacks::onNext(std::string content)
+    {
+
+    }
+    void DebugProtocolCallbacks::onStepInto(std::string content)
+    {
+        
+    }
+    
 }
