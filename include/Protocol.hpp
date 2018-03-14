@@ -638,7 +638,7 @@ namespace vscode_debug {
 		public:
 			//Capabilities body;
 			SetBreakpointsResponseBody body;
-			SetBreakpointsResponse(SetBreakpointsResponse &initreq) : Response((Request&) initreq)
+			SetBreakpointsResponse(SetBreakpointsRequest &initreq) : Response((Request&) initreq)
 			{}
 	};	
 	class ValueFormat

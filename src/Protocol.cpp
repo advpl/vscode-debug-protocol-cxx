@@ -156,6 +156,7 @@ namespace vscode_debug {
     }
     void to_json(json& j, const SetBreakpointsResponse& p)
     {
+          to_json(j,(Response&) p );
           j["body"] =  p.body;
     }
     
@@ -373,7 +374,7 @@ namespace vscode_debug {
      }
 	void to_json(json& j, const NextResponse& p)
     {
-        to_json(j,(Response&) p );        
+        to_json(j,(Response&) p );
     }	
     void from_json(const json& j, StepInArguments& p)
     {        
