@@ -336,7 +336,7 @@ namespace vscode_debug {
     void from_json(const json& j, StackFrameFormat& p)
     {        
 		
-        from_json(j,(ValueFormat) p);
+        from_json(j,(ValueFormat&) p);
         if(j.find("parameters")!= j.end())
             p.parameters = j.at("parameters").get<bool>();
 		if(j.find("parameterTypes")!= j.end())

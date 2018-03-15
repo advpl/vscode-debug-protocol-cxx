@@ -645,6 +645,7 @@ namespace vscode_debug {
 	{
 		public:
 			bool hex;
+			ValueFormat(){}
 	};
 	
 
@@ -665,6 +666,7 @@ namespace vscode_debug {
 			bool module;//?: boolean;
 			/** Includes all stack frames, including those the debug adapter might otherwise hide. */
 			bool includeAll;//?: boolean;
+			StackFrameFormat(){}
 	};
 	
 
