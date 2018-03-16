@@ -389,6 +389,28 @@ namespace vscode_debug {
     {
         to_json(j,(Response&) p );        
     }	
+    void to_json(json& j, const VariablePresentationHint& p) 
+    {
+        j = json{{"kind", p.kind},
+                 {"attributes", p.attributes}};
+				 if(!p.visibility.empty())
+            		j["visibility"] = p.visibility;				 
+	}
+    void to_json(json& j, const Variable& p) 
+    {
+        j = json{{"name", p.name},
+                 {"value", p.value},
+				 {"type", p.type},
+				 {"variablesReference", p.variablesReference}};
+				if(!p.presentationHint.kind.empty())
+            		j["presentationHint"] = p.presentationHint;
+				if(!p.evaluateName.empty())
+					j["evaluateName"] = p.evaluateName;
+				if(p.namedVariables > 0 )
+					j["namedVariables"] = p.namedVariables;
+				if(p.indexedVariables > 0 )
+					j["indexedVariables"] = p.indexedVariables;
+	}
 
 
 }

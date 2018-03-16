@@ -710,10 +710,78 @@ namespace vscode_debug {
 		
 	};
 	
-
 	
+	/** Optional properties of a variable that can be used to determine how to render the variable in the UI. */
+	struct VariablePresentationHint {
+		/** The kind of variable. Before introducing additional values, try to use the listed values.
+			Values: 
+			'property': Indicates that the object is a property.
+			'method': Indicates that the object is a method.
+			'class': Indicates that the object is a class.
+			'data': Indicates that the object is data.
+			'event': Indicates that the object is an event.
+			'baseClass': Indicates that the object is a base class.
+			'innerClass': Indicates that the object is an inner class.
+			'interface': Indicates that the object is an interface.
+			'mostDerivedClass': Indicates that the object is the most derived class.
+			'virtual': Indicates that the object is virtual, that means it is a synthetic object introduced by the adapter for rendering purposes, e.g. an index range for large arrays.
+			etc.
+		*/
+		string kind;//: string;
+		/** Set of attributes represented as an array of strings. Before introducing additional values, try to use the listed values.
+			Values: 
+			'static': Indicates that the object is static.
+			'constant': Indicates that the object is a constant.
+			'readOnly': Indicates that the object is read only.
+			'rawString': Indicates that the object is a raw string.
+			'hasObjectId': Indicates that the object can have an Object ID created for it.
+			'canHaveObjectId': Indicates that the object has an Object ID associated with it.
+			'hasSideEffects': Indicates that the evaluation had side effects.
+			etc.
+		*/
+		vector<string> attributes;//?: string[];
+		/** Visibility of variable. Before introducing additional values, try to use the listed values.
+			Values: 'public', 'private', 'protected', 'internal', 'final', etc.
+		*/
+		string visibility;//?: string;
+	};
 
 
+	/** A Variable is a name/value pair.
+		Optionally a variable can have a 'type' that is shown if space permits or when hovering over the variable's name.
+		An optional 'kind' is used to render additional properties of the variable, e.g. different icons can be used to indicate that a variable is public or private.
+		If the value is structured (has children), a handle is provided to retrieve the children with the VariablesRequest.
+		If the number of named or indexed children is large, the numbers should be returned via the optional 'namedVariables' and 'indexedVariables' attributes.
+		The client can use this optional information to present the children in a paged UI and fetch them in chunks.
+	*/
+	class Variable {
+		public:
+			/** The variable's name. */
+			string name;
+			/** The variable's value. This can be a multi-line text, e.g. for a function the body of a function. */
+			string value;
+			/** The type of the variable's value. Typically shown in the UI when hovering over the value. */
+			string type;
+			/** Properties of a variable that can be used to determine how to render the variable in the UI. */
+			VariablePresentationHint presentationHint;//?
+			/** Optional evaluatable name of this variable which can be passed to the 'EvaluateRequest' to fetch the variable's value. */
+			string evaluateName;//?: string;
+			/** If variablesReference is > 0, the variable is structured and its children can be retrieved by passing variablesReference to the VariablesRequest. */
+			int variablesReference;//: number;
+			/** The number of named child variables.
+				The client can use this optional information to present the children in a paged UI and fetch them in chunks.
+			*/
+			int namedVariables;//?: number;
+			/** The number of indexed child variables.
+				The client can use this optional information to present the children in a paged UI and fetch them in chunks.
+			*/
+			int indexedVariables; //?: number;
+			Variable():variablesReference(0),namedVariables(0),indexedVariables(0){}
+	};
+	
+    
+	void to_json(json& j, const VariablePresentationHint& p);
+	void to_json(json& j, const Variable& p);
 
 
 
