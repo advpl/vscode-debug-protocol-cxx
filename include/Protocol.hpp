@@ -514,7 +514,7 @@ namespace vscode_debug {
 		/** The checksums associated with this file. */
 		vector<Checksum> checksums;
 		Source(){}
-		Source(string name,string path):name(name),path(path){}
+		Source(string name,string path):name(name),path(path),sourceReference(0){}
 	};
 
 
