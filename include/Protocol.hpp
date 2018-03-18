@@ -779,22 +779,96 @@ namespace vscode_debug {
 			Variable():variablesReference(0),namedVariables(0),indexedVariables(0){}
 	};
 	
+/** A Scope is a named container for variables. Optionally a scope can map to a source or a range within a source. */
+	struct Scope {
+		/** Name of the scope such as 'Arguments', 'Locals'. */
+		string name;//: string;
+		/** The variables of this scope can be retrieved by passing the value of variablesReference to the VariablesRequest. */
+		int variablesReference;//: number;
+		/** The number of named variables in this scope.
+			The client can use this optional information to present the variables in a paged UI and fetch them in chunks.
+		*/
+		int namedVariables;//?: number;
+		/** The number of indexed variables in this scope.
+			The client can use this optional information to present the variables in a paged UI and fetch them in chunks.
+		*/
+		int indexedVariables;//?: number;
+		/** If true, the number of variables in this scope is large or expensive to retrieve. */
+		bool expensive;//: boolean;
+		/** Optional source for this scope. */
+		Source source;//?: Source;
+		/** Optional start line of the range covered by this scope. */
+		int line;//?: number;
+		/** Optional start column of the range covered by this scope. */
+		int column;//?: number;
+		/** Optional end line of the range covered by this scope. */
+		int endLine;//?: number;
+		/** Optional end column of the range covered by this scope. */
+		int endColumn;//?: number;
+		Scope(string pname, int pvariablesReference):Scope()
+		{
+			name = pname;
+			variablesReference = pvariablesReference;
+			expensive = false;
+		}
+		Scope()
+		{	
+			line = -1;
+			column = -1;
+			endLine = -1;
+			endColumn = -1;
+			indexedVariables = -1;
+			namedVariables = -1;
+		}
+	};
+
+
     
+	/** Arguments for 'scopes' request. */
+	struct ScopesArguments {
+		/** Retrieve the scopes for this stackframe. */
+		int frameId;//: number;
+	};
+
+	/** Scopes request; value of command field is 'scopes'.
+		The request returns the variable scopes for a given stackframe ID.
+	*/
+	class ScopesRequest : public Request {
+		// command: 'scopes';
+		ScopesArguments arguments;//: ScopesArguments;
+	};
+
+	struct ScopesResponseBody
+	{
+		vector<Scope> scopes;
+	};
+
+	/** Response to 'scopes' request. */
+	class ScopesResponse :public Response {
+		public:
+			ScopesResponseBody body;
+			ScopesResponse (ScopesRequest &initreq) : Response((Request&) initreq)
+			{}
+	};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	void to_json(json& j, const VariablePresentationHint& p);
 	void to_json(json& j, const Variable& p);
-
-
-
-
-
-
-
-
-
-
-
-
-
 	void from_json(const json& j, SetBreakpointsRequest& p);
 	void from_json(const json& j, SourceBreakpoint& p);
 	void from_json(const json& j, SetBreakpointsArguments& p);
