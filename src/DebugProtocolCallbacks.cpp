@@ -33,5 +33,9 @@ namespace vscode_debug {
     {
         
     }
+    void DebugProtocolCallbacks::onScope(std::string content)
+    {
+        
+    }
     
 }

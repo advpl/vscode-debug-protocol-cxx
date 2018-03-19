@@ -779,6 +779,9 @@ namespace vscode_debug {
 			Variable():variablesReference(0),namedVariables(0),indexedVariables(0){}
 	};
 	
+
+
+
 /** A Scope is a named container for variables. Optionally a scope can map to a source or a range within a source. */
 	struct Scope {
 		/** Name of the scope such as 'Arguments', 'Locals'. */
@@ -835,7 +838,8 @@ namespace vscode_debug {
 	*/
 	class ScopesRequest : public Request {
 		// command: 'scopes';
-		ScopesArguments arguments;//: ScopesArguments;
+		public:
+			ScopesArguments arguments;//: ScopesArguments;
 	};
 
 	struct ScopesResponseBody
@@ -850,22 +854,74 @@ namespace vscode_debug {
 			ScopesResponse (ScopesRequest &initreq) : Response((Request&) initreq)
 			{}
 	};
+	
+	
+
+
+
+	/** Arguments for 'variables' request. */
+	struct VariablesArguments {
+		/** The Variable reference. */
+		int variablesReference;//: number;
+		/** Optional filter to limit the child variables to either named or indexed. If ommited, both types are fetched. */
+		string filter;//?: 'indexed' | 'named';
+		/** The index of the first variable to return; if omitted children start at 0. */
+		int start;//?: number;
+		/** The number of variables to return. If count is missing or 0, all variables are returned. */
+		int count;//?: number;
+		/** Specifies details on how to format the Variable values. */
+		ValueFormat format;//?: ValueFormat;
+	};
+	
+
+
+	/** Variables request; value of command field is 'variables'.
+		Retrieves all child variables for the given variable reference.
+		An optional filter can be used to limit the fetched children to either named or indexed children.
+	*/
+	class VariablesRequest : public Request {	
+		// command: 'variables';
+		public:
+			VariablesArguments arguments;
+	};
+
+
+	struct SetVariableResponseBody
+	{
+		/** The new value of the variable. */
+		string value;//: string;
+		/** The type of the new value. Typically shown in the UI when hovering over the value. */
+		string type;//?: string;
+		/** If variablesReference is > 0, the new value is structured and its children can be retrieved by passing variablesReference to the VariablesRequest. */
+		int variablesReference;//?: number;
+		/** The number of named child variables.
+			The client can use this optional information to present the variables in a paged UI and fetch them in chunks.
+		*/
+		int namedVariables;//?: number;
+		/** The number of indexed child variables.
+			The client can use this optional information to present the variables in a paged UI and fetch them in chunks.
+		*/
+		int indexedVariables;//?: number;
+	
+
+	};
+/** Response to 'setVariable' request. */
+	class SetVariableResponse : public Response {
+		SetVariableResponseBody body;		
+		 SetVariableResponse(VariablesRequest &initreq) : Response((Request&) initreq)
+		{}
+	};
 
 
 
 
 
+	void from_json(const json& j, VariablesArguments& p);
+	void from_json(const json& j, VariablesRequest& p);
 
 
-
-
-
-
-
-
-
-
-
+	void from_json(const json& j, ScopesRequest& p);
+    void from_json(const json& j, ScopesArguments& p);
 
 	void to_json(json& j, const VariablePresentationHint& p);
 	void to_json(json& j, const Variable& p);
@@ -929,8 +985,12 @@ namespace vscode_debug {
 	void from_json(const json& j, StepInRequest& p);
 	void from_json(const json& j, StepInArguments& p);
 
-
-	
+	void to_json(json& j, const ScopesResponse& p);
+	void to_json(json& j, const ScopesResponseBody& p);
+	void to_json(json& j, const ScopesArguments& p);
+	void to_json(json& j, const Scope& p);
+	void to_json(json& j, const ValueFormat& p);
+	void to_json(json& j, const VariablesArguments& p);
 	
 }
 

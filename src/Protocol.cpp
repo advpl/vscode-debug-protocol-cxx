@@ -328,6 +328,10 @@ namespace vscode_debug {
 		to_json(j,(Response&) p );
         j["body"] =  p.body;
 	}
+    void to_json(json& j, const ValueFormat& p)
+    {		
+        j["hex"] =  p.hex;
+	}
     void from_json(const json& j, ValueFormat& p)
     {   
 		if(j.find("hex")!= j.end())
@@ -411,6 +415,77 @@ namespace vscode_debug {
 				if(p.indexedVariables > 0 )
 					j["indexedVariables"] = p.indexedVariables;
 	}
+    void to_json(json& j, const ScopesResponse& p)
+    {
+          to_json(j,(Response&) p );
+          j["body"] =  p.body;
+    }
 
+	void to_json(json& j, const ScopesResponseBody& p)
+    {
+        j = json{{"scopes", p.scopes}};
+	}
+	
+	void to_json(json& j, const ScopesArguments& p) 
+    {
+		j = json{{"frameId", p.frameId}};
+	}
+
+	void to_json(json& j, const Scope& p) 
+    {
+        j = json{{"name", p.name},
+                 {"expensive", p.expensive},				 
+				 {"variablesReference", p.variablesReference}};								
+				if(p.namedVariables > 0 )
+					j["namedVariables"] = p.namedVariables;
+				if(p.indexedVariables > 0 )
+					j["indexedVariables"] = p.indexedVariables;
+				if(!p.source.name.empty())
+            		j["source"] = p.source;
+				if(p.line != -1)
+					j["line"] = p.line;
+				if(p.column != -1 )
+					j["column"] = p.column;
+				if(p.endLine != -1 )
+					j["endLine"] = p.endLine;
+				if(p.endColumn != -1 )
+					j["endColumn"] = p.endColumn;
+	}
+    void from_json(const json& j, ScopesRequest& p) {
+            from_json(j, (Request&) p );
+            p.arguments = j.at("arguments").get<ScopesArguments>();
+     }
+    void from_json(const json& j, ScopesArguments& p) {
+        p.frameId = j.at("frameId").get<int>();        
+    }
+
+    void to_json(json& j, const VariablesArguments& p) 
+    {
+		j = json{{"variablesReference", p.variablesReference}};
+			if(p.filter.empty() )
+				j["filter"] = p.filter;
+			if(p.start != -1 )
+				j["start"] = p.start;
+			if(p.count != -1 )
+				j["count"] = p.count;			
+			j["format"] = p.format;
+	};   
+    void from_json(const json& j, VariablesArguments& p) {
+        p.variablesReference = j.at("variablesReference").get<int>();
+		if(j.find("filter")!= j.end())
+			p.filter = j.at("filter").get<string>();
+		if(j.find("start")!= j.end())
+			p.start = j.at("start").get<int>();
+		if(j.find("count")!= j.end())
+			p.count = j.at("count").get<int>();		
+		if(j.find("format")!= j.end())
+			p.format = j.at("format").get<ValueFormat>();
+    }
+		
+
+	void from_json(const json& j, VariablesRequest& p) {
+            from_json(j, (Request&) p );
+			p.arguments = j.at("arguments").get<VariablesArguments>();
+     }
 
 }

@@ -19,6 +19,7 @@ namespace vscode_debug {
       virtual void onContinue(std::string content) = 0;
       virtual void onNext(std::string content) = 0;
       virtual void onStepInto(std::string content) = 0;
+      virtual void onScope(std::string content) = 0;
       virtual void onThreads(std::string content) = 0 ;      
       virtual void onLaunch(std::string content) = 0;
       virtual void onDisconnect(std::string content) = 0;
