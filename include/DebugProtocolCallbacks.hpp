@@ -7,7 +7,7 @@
 namespace vscode_debug 
 {
     
-    class DebugProtocolCallbacks : public ProtocolCallbacks 
+    class DebugProtocolCallbacks : public ProtocolCallbacks
     {
     public:
         DebugProtocolCallbacks():ProtocolCallbacks() {}
@@ -22,6 +22,7 @@ namespace vscode_debug
         void onSetBreakPoint(std::string content) override;
         void onStackTrace(std::string content) override;
         void onScope(std::string content) override;
+        void onVariables(std::string content) override;
     };
 
 

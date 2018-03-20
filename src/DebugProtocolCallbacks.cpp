@@ -37,5 +37,9 @@ namespace vscode_debug {
     {
         
     }
+    void DebugProtocolCallbacks::onVariables(std::string content)
+    {
+        
+    }
     
 }

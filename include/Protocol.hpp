@@ -885,6 +885,21 @@ namespace vscode_debug {
 			VariablesArguments arguments;
 	};
 
+	struct VariablesResponseBody
+	{
+		vector<Variable> variables;
+	};
+	
+	/** Response to 'variables' request. */
+	class VariablesResponse: public Response {	
+		
+			public:
+			/** All (or a range) of variables for the given variable reference. */
+				VariablesResponseBody body;
+				
+			VariablesResponse(VariablesRequest &initreq) : Response((Request&) initreq)
+			{}
+	};
 
 	struct SetVariableResponseBody
 	{
@@ -902,7 +917,13 @@ namespace vscode_debug {
 			The client can use this optional information to present the variables in a paged UI and fetch them in chunks.
 		*/
 		int indexedVariables;//?: number;
-	
+		
+		SetVariableResponseBody()
+		{
+			variablesReference = -1;
+			namedVariables = -1;
+			indexedVariables = -1;
+		}
 
 	};
 /** Response to 'setVariable' request. */
@@ -912,10 +933,10 @@ namespace vscode_debug {
 		{}
 	};
 
-
-
-
-
+	void to_json(json& j, const VariablesResponseBody& p);
+	void to_json(json& j, const VariablesResponse& p);
+  	
+	void to_json(json& j, const SetVariableResponseBody& p);
 	void from_json(const json& j, VariablesArguments& p);
 	void from_json(const json& j, VariablesRequest& p);
 

@@ -487,5 +487,25 @@ namespace vscode_debug {
             from_json(j, (Request&) p );
 			p.arguments = j.at("arguments").get<VariablesArguments>();
      }
+     void to_json(json& j, const SetVariableResponseBody& p) {
+        j = json{{"value", p.value}};				                  
+		if(!p.type.empty())
+            j["type"] = p.type;
+		if(p.variablesReference != -1)
+            j["variablesReference"] = p.variablesReference;
+		if(p.namedVariables != -1)
+            j["namedVariables"] = p.namedVariables;
+		if(p.indexedVariables != -1)
+            j["indexedVariables"] = p.indexedVariables;		
+    }
+    void to_json(json& j, const VariablesResponseBody& p)
+    {
+        j["variables"] = p.variables;
+    }
 
+	void to_json(json& j, const VariablesResponse& p)
+    {
+          to_json(j,(Response&) p );
+          j["body"] =  p.body;
+    }
 }
