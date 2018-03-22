@@ -23,6 +23,7 @@ namespace vscode_debug
         void onStackTrace(std::string content) override;
         void onScope(std::string content) override;
         void onVariables(std::string content) override;
+        void onEvaluate(std::string content) override;
     };
 
 

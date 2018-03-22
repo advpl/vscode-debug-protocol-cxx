@@ -129,6 +129,17 @@ namespace vscode_debug {
         ProtocolCallbacks &Callbacks;
     };
 
+    struct EvaluateHandler : Handler {
+        EvaluateHandler(ProtocolCallbacks &Callbacks)
+                : Handler(), Callbacks(Callbacks) {}
+
+        void handleMethod(std::string content) override {
+            Callbacks.onEvaluate(content);
+        }        
+    private:
+        ProtocolCallbacks &Callbacks;
+    };
+
 
 
 
@@ -193,7 +204,7 @@ namespace vscode_debug {
         Dispatcher.registerHandler("stackTrace", std::make_unique<StackTraceHandler>(Callbacks));
         Dispatcher.registerHandler("scopes", std::make_unique<ScopeHandler>(Callbacks));
         Dispatcher.registerHandler("variables", std::make_unique<VariablesHandler>(Callbacks));
-        
+        Dispatcher.registerHandler("evaluate", std::make_unique<EvaluateHandler>(Callbacks));
 
         Callbacks.setJsonOutPut(&Out);
         //virtual void onLaunch(std::string content, JSONOutput &Out) = 0;

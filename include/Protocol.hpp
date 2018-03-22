@@ -934,6 +934,81 @@ namespace vscode_debug {
 		{}
 	};
 
+	struct EvaluateResponseBody
+	{
+
+		/** The result of the evaluate request. */
+		string result;//: string;
+		/** The optional type of the evaluate result. */
+		string type;//?: string;
+		/** Properties of a evaluate result that can be used to determine how to render the result in the UI. */
+		VariablePresentationHint presentationHint;//?: VariablePresentationHint;
+		/** If variablesReference is > 0, the evaluate result is structured and its children can be retrieved by passing variablesReference to the VariablesRequest. */
+		int variablesReference;//: number;
+		/** The number of named child variables.
+			The client can use this optional information to present the variables in a paged UI and fetch them in chunks.
+		*/
+		int namedVariables;//?: number;
+		/** The number of indexed child variables.
+			The client can use this optional information to present the variables in a paged UI and fetch them in chunks.
+		*/
+		int indexedVariables;//?: number;
+		EvaluateResponseBody():variablesReference(0){}
+	} ;
+
+
+
+	
+
+	/** Arguments for 'evaluate' request. */
+	struct EvaluateArguments {
+		/** The expression to evaluate. */
+		string expression;//: string;
+		/** Evaluate the expression in the scope of this stack frame. If not specified, the expression is evaluated in the global scope. */
+		int frameId;//?: number;
+		/** The context in which the evaluate request is run.
+			Values:
+			'watch': evaluate is run in a watch.
+			'repl': evaluate is run from REPL console.
+			'hover': evaluate is run from a data hover.
+			etc.
+		*/
+		string context;//?: string;
+		/** Specifies details on how to format the Evaluate result. */
+		ValueFormat format;//?: ValueFormat;
+	};
+/** Evaluate request; value of command field is 'evaluate'.
+		Evaluates the given expression in the context of the top most stack frame.
+		The expression has access to any variables and arguments that are in scope.
+	*/
+	
+	class EvaluateRequest : public Request {	
+		// command: 'evaluate';
+		public:
+			EvaluateArguments arguments;
+			
+	};
+
+	
+	 /** Response to 'evaluate' request. */
+	class EvaluateResponse : public Response {
+		public:
+			EvaluateResponseBody body;
+			EvaluateResponse(EvaluateRequest &initreq) : Response((Request&) initreq)
+			{}
+	};
+
+
+
+
+
+
+	void to_json(json& j, const EvaluateResponse& p);
+	void to_json(json& j, const EvaluateResponseBody& p);
+
+	void from_json(const json& j, EvaluateArguments& p);
+	void from_json(const json& j, EvaluateRequest& p);
+
 	void to_json(json& j, const VariablesResponseBody& p);
 	void to_json(json& j, const VariablesResponse& p);
   	

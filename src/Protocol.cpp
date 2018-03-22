@@ -508,4 +508,36 @@ namespace vscode_debug {
           to_json(j,(Response&) p );
           j["body"] =  p.body;
     }
+    void from_json(const json& j, EvaluateArguments& p) {
+        p.expression = j.at("expression").get<string>();		
+		if(j.find("frameId")!= j.end())
+			p.frameId = j.at("frameId").get<int>();
+		if(j.find("context")!= j.end())
+			p.context = j.at("context").get<string>();
+		if(j.find("format")!= j.end())
+			p.format = j.at("format").get<ValueFormat>();
+    }
+	void from_json(const json& j, EvaluateRequest& p) {
+            from_json(j, (Request&) p );
+            p.arguments = j.at("arguments").get<EvaluateArguments>();
+     }
+     void to_json(json& j, const EvaluateResponseBody& p)
+    {
+		j = json{{"result", p.result}};
+            if (!p.type.empty())
+				j["type"] = p.type;
+			if (!p.presentationHint.kind.empty())
+				j["presentationHint"] = p.presentationHint;
+			if (p.variablesReference > 0 )
+				j["variablesReference"] = p.variablesReference;
+			if (p.namedVariables > 0 )
+				j["namedVariables"] = p.namedVariables;
+			if (p.indexedVariables > 0 )
+				j["indexedVariables"] = p.indexedVariables;
+	}
+	void to_json(json& j, const EvaluateResponse& p)
+    {
+          to_json(j,(Response&) p );
+          j["body"] =  p.body;
+    }
 }
