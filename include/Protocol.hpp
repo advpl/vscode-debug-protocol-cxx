@@ -777,7 +777,7 @@ namespace vscode_debug {
 			*/
 			int indexedVariables; //?: number;
 			Variable():variablesReference(0),namedVariables(0),indexedVariables(0){}
-			Variable(string name, string value, int variablesReference):name(name),value(value),variablesReference(variablesReference){}
+			Variable(string name, string value, int variablesReference):name(name),value(value),variablesReference(variablesReference),namedVariables(0),indexedVariables(0){}
 	};
 	
 
