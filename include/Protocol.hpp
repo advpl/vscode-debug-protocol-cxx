@@ -953,7 +953,7 @@ namespace vscode_debug {
 			The client can use this optional information to present the variables in a paged UI and fetch them in chunks.
 		*/
 		int indexedVariables;//?: number;
-		EvaluateResponseBody():variablesReference(0){}
+		EvaluateResponseBody():variablesReference(-1),namedVariables(-1),indexedVariables(-1){}
 	} ;
 
 
