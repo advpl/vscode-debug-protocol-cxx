@@ -69,15 +69,20 @@ if (APPLE)
     set(BOOST_ROOT "/usr/local/boost_1_65_1/")
     set (BOOST_INCLUDEDIR "/usr/local/boost_1_65_1/boost/")
 elseif (UNIX)
-    set(BOOST_ROOT "/home/rodrigo/dev/boost/")
-    set (BOOST_INCLUDEDIR "/home/rodrigo/dev/boost/")
-    set (BOOST_LIBRARYDIR "/home/rodrigo/dev/boost/stage/lib/")
-    ADD_DEFINITIONS("-std=c++11")
+    set(BOOST_ROOT "/opt/boost")
+    set (BOOST_INCLUDEDIR "/opt/boost/boost/")
+    set (BOOST_LIBRARYDIR "/opt/boost/lib/")    
 elseif (WIN32)
     set (BOOST_ROOT "C:/local/boost_1_65_1" )
     set (BOOST_LIBRARYDIR "C:/local/boost_1_65_1/stage/lib/")
 endif()
 endif()
+if(UNIX)
+    set(BOOST_ROOT "/opt/boost")
+    set (BOOST_INCLUDEDIR "/opt/boost/boost/")
+    set (BOOST_LIBRARYDIR "/opt/boost/lib/")        
+endif(UNIX)
+ADD_DEFINITIONS("-std=c++11")
 
 ###############################################################################
 ## dependencies ###############################################################
@@ -111,14 +116,15 @@ find_package(Boost
 add_library( ${PROJECT_NAME} ${LIB_SOURCES} ${LIB_HEADERS} )
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories( include/)
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
 
 
-add_executable(testeDebug src/ZMain.cpp ${data} ${LIB_HEADERS})
-target_link_libraries(testeDebug
-  ${Boost_LIBRARIES}
-  ${PROJECT_NAME} 
-  ${CMAKE_THREAD_LIBS_INIT}
-)
+#add_executable(testeDebug src/ZMain.cpp ${data} ${LIB_HEADERS})
+#target_link_libraries(testeDebug
+#  ${Boost_LIBRARIES}
+#  ${PROJECT_NAME} 
+#  ${CMAKE_THREAD_LIBS_INIT}
+#)
 
 # End Boost
 

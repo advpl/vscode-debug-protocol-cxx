@@ -12,7 +12,7 @@ namespace vscode_debug {
 		while (input.good()) {
 			// A Debug Protocol message starts with a set of HTTP headers,
 			// delimited  by \r\n, and terminated by an empty line (\r\n).	
-			unsigned long long ContentLength = 0;
+			unsigned int ContentLength = 0;
 			while (input.good()) {
 			std::string Line;
 			std::getline(input, Line);		  
@@ -23,7 +23,7 @@ namespace vscode_debug {
 			if (starts_with(Line,"Content-Length: ")) {
 					Line = erase_head_copy(Line,16);
 					trim(Line);
-					ContentLength = boost::lexical_cast<long>(Line);
+					ContentLength = boost::lexical_cast<unsigned int>(Line);
 					continue;
 			}
 			else 
