@@ -373,6 +373,21 @@ namespace vscode_debug {
 		int width;
 	};
 
+struct SetExceptionBreakpointsArguments{
+	vector<string> filters;
+};
+class SetExceptionBreakpointsRequest : public Request {
+	
+		// command: 'setExceptionBreakpoints';
+		public:
+			SetExceptionBreakpointsArguments arguments;
+	};
+
+class SetExceptionBreakpointsResponse: public Response {	
+	public:	
+	SetExceptionBreakpointsResponse(SetExceptionBreakpointsRequest &req) : Response((Request&) req)
+	{}
+};
 
 /** An ExceptionBreakpointsFilter is shown in the UI as an option for configuring how exceptions are dealt with. */
 	struct ExceptionBreakpointsFilter {

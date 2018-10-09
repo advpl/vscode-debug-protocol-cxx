@@ -45,5 +45,9 @@ namespace vscode_debug {
     {
         
     }
+    void DebugProtocolCallbacks::onSetExceptionBreakpoints(std::string content)
+    {
+        
+    }
     
 }

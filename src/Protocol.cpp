@@ -540,4 +540,15 @@ namespace vscode_debug {
           to_json(j,(Response&) p );
           j["body"] =  p.body;
     }
+    void from_json(const json& j, SetExceptionBreakpointsRequest& p){
+        from_json(j, (Request&) p );
+        p.arguments = j.at("arguments").get<SetExceptionBreakpointsArguments>();
+    }
+    void from_json(const json& j, SetExceptionBreakpointsArguments& p){
+
+    }
+    void to_json(json& j, const SetExceptionBreakpointsResponse& p)
+    {
+        to_json(j,(Response&) p );
+    }
 }
