@@ -28,6 +28,7 @@ namespace vscode_debug {
       virtual void onVariables(std::string content) = 0;
       virtual void onEvaluate(std::string content) = 0;
       virtual void onSetExceptionBreakpoints(std::string content) = 0 ;
+      virtual void onSource(std::string content) = 0;
       void PrepareErrorResponse(Response &response, int id, string format);
       /*void SendErrorResponse(Response response, int id, string format, vector<string>arguments,bool user, bool telemetry);
       void SendErrorResponse(Response response, int id, string format);

@@ -530,6 +530,7 @@ class SetExceptionBreakpointsResponse: public Response {
 		vector<Checksum> checksums;
 		Source(){}
 		Source(string name,string path):name(name),path(path),sourceReference(0){}
+		Source(string name,string path,int sr):name(name),path(path),sourceReference(sr){}
 	};
 
 
@@ -1013,8 +1014,40 @@ class SetExceptionBreakpointsResponse: public Response {
 			{}
 	};
 
+	struct SourceArguments {
+	/**
+	 * Specifies the source content to load. Either source.path or source.sourceReference must be specified.
+	 */
+	Source source;
 
+	/**
+	 * The reference to the source. This is the same as source.sourceReference. This is provided for backward compatibility since old backends do not understand the 'source' attribute.
+	 */
+	int sourceReference;
+	};
+	class SourceRequest : public Request {	
+	//command: 'source';
+		public:
+		SourceArguments arguments;
+	};
 
+	struct SourceResponseBody
+	{
+		string content;
+		string mimeType;
+
+	};
+	class SourceResponse : public Response {
+		public:
+			SourceResponseBody body;
+			SourceResponse(SourceRequest &initreq) : Response((Request&) initreq)
+			{}
+	};
+
+	void from_json(const json& j, SourceArguments& p);
+	void from_json(const json& j, SourceRequest& p);
+	void to_json(json& j, const SourceResponse& p);
+	void to_json(json& j, const SourceResponseBody& p);
 
 
 

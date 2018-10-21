@@ -551,4 +551,29 @@ namespace vscode_debug {
     {
         to_json(j,(Response&) p );
     }
+
+    void from_json(const json& j, SourceArguments& p){
+        p.sourceReference = j.at("sourceReference").get<int>();		
+		if(j.find("source")!= j.end())
+			p.source = j.at("source").get<Source>();
+		
+    }
+	void from_json(const json& j, SourceRequest& p){
+       from_json(j, (Request&) p );
+       p.arguments = j.at("arguments").get<SourceArguments>();		 
+    }
+	void to_json(json& j, const SourceResponse& p){
+           to_json(j,(Response&) p );
+          j["body"] =  p.body;
+    }
+	void to_json(json& j, const SourceResponseBody& p)
+    {
+        j = json{{"content", p.content}};
+        if (!p.mimeType.empty())
+            j["mimeType"] = p.mimeType;
+
+    }
+
+
+
 }

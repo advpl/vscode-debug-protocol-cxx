@@ -25,6 +25,7 @@ namespace vscode_debug
         void onVariables(std::string content) override;
         void onEvaluate(std::string content) override;
         void onSetExceptionBreakpoints(std::string content) override;
+        void onSource(std::string content) override;
     };
 
 

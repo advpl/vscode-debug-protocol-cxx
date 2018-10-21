@@ -49,5 +49,10 @@ namespace vscode_debug {
     {
         
     }
+    void DebugProtocolCallbacks::onSource(std::string content)
+    {
+        
+    }
+    
     
 }

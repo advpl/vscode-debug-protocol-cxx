@@ -150,9 +150,16 @@ namespace vscode_debug {
         private:
             ProtocolCallbacks &Callbacks;
         };
+    struct SourceHandler : Handler {
+            SourceHandler(ProtocolCallbacks &Callbacks)
+                : Handler(), Callbacks(Callbacks) {}
 
-
-
+        void handleMethod(std::string content) override {
+            Callbacks.onSource(content);
+        }     
+        private:
+            ProtocolCallbacks &Callbacks;   
+    };
     
     struct SetBreakPointtHandler : Handler {
         SetBreakPointtHandler(ProtocolCallbacks &Callbacks)
@@ -215,7 +222,7 @@ namespace vscode_debug {
         Dispatcher.registerHandler("variables", std::make_unique<VariablesHandler>(Callbacks));
         Dispatcher.registerHandler("evaluate", std::make_unique<EvaluateHandler>(Callbacks));
         Dispatcher.registerHandler("setExceptionBreakpoints", std::make_unique<SetExceptionBreakpointsHandler>(Callbacks));
-
+        Dispatcher.registerHandler("source", std::make_unique<SourceHandler>(Callbacks));
         Callbacks.setJsonOutPut(&Out);
         //virtual void onLaunch(std::string content, JSONOutput &Out) = 0;
     }
