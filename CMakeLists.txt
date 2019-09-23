@@ -73,7 +73,7 @@ elseif (UNIX)
     set (BOOST_INCLUDEDIR "/opt/boost/boost/")
     set (BOOST_LIBRARYDIR "/opt/boost/lib/")    
 elseif (WIN32)
-    set (BOOST_ROOT "C:/local/boost_1_68_0/" )
+    set (BOOST_ROOT "C:/local/boost_1_71_0" )
     set (BOOST_LIBRARYDIR "C:/local/boost_1_68_0/stage/VS/x64/lib/")
 endif()
 endif()
@@ -124,7 +124,7 @@ find_package(Boost
 add_library( ${PROJECT_NAME} ${LIB_SOURCES} ${LIB_HEADERS} )
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories( include/)
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARY} ${OPENSSL_SSL_LIBRARY} )
 
 
 #add_executable(testeDebug src/ZMain.cpp ${data} ${LIB_HEADERS})
