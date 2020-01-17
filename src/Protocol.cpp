@@ -17,11 +17,7 @@ namespace vscode_debug {
         p.command = j.at("command").get<string>();
     }
 
-    void from_json(const json& j, InitializeRequest& p) {
-            from_json(j, (Request&) p );
-            p.arguments = j.at("arguments").get<InitializeRequestArguments>();
-
-     }
+    
     void from_json(const json& j, StackTraceRequest& p) {
             from_json(j, (Request&) p );
             p.arguments = j.at("arguments").get<StackTraceArguments>();
@@ -57,7 +53,7 @@ namespace vscode_debug {
      }
 
 
-     void to_json(json& j, const InitializeRequestArguments& p) {
+     void to_json(json& j, InitializeRequestArguments& p) {
         j = json{{"clientID", p.clientID},
                  {"adapterID", p.adapterID},
                  {"locale", p.locale},
@@ -539,13 +535,9 @@ namespace vscode_debug {
     {
           to_json(j,(Response&) p );
           j["body"] =  p.body;
-    }
-    void from_json(const json& j, SetExceptionBreakpointsRequest& p){
-        from_json(j, (Request&) p );
-        p.arguments = j.at("arguments").get<SetExceptionBreakpointsArguments>();
-    }
+    }    
     void from_json(const json& j, SetExceptionBreakpointsArguments& p){
-
+        
     }
     void to_json(json& j, const SetExceptionBreakpointsResponse& p)
     {
@@ -573,7 +565,14 @@ namespace vscode_debug {
             j["mimeType"] = p.mimeType;
 
     }
+    void from_json(const json& j, InitializeRequest& p) {
+            from_json(j, (Request&) p );
+            p.arguments = j.at("arguments").get<InitializeRequestArguments>();
 
-
+     }
+     void from_json(const json& j, SetExceptionBreakpointsRequest& p){
+        from_json(j, (Request&) p );
+        p.arguments = j.at("arguments").get<SetExceptionBreakpointsArguments>();
+    }
 
 }
