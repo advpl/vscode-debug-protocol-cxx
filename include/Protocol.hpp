@@ -1037,6 +1037,7 @@ class SetExceptionBreakpointsResponse: public Response {
 		string mimeType;
 
 	};
+
 	class SourceResponse : public Response {
 		public:
 			SourceResponseBody body;
@@ -1044,11 +1045,35 @@ class SetExceptionBreakpointsResponse: public Response {
 			{}
 	};
 
+	struct OutputEventBody
+	{
+		string category;
+		string output;
+		int variablesReference; //Number
+		Source source;
+		int line; //Number
+		int column; //Number
+		string data; //Any
+
+		OutputEventBody()
+		{
+			variablesReference = -1;
+			line = -1;
+			column = -1;
+		}
+	};
+
+	class OutputEvent: public Event {
+		public:
+			OutputEventBody body;
+			OutputEvent():Event("output"){				
+			}
+	};
+
 	void from_json(const json& j, SourceArguments& p);
 	void from_json(const json& j, SourceRequest& p);
 	void to_json(json& j, const SourceResponse& p);
 	void to_json(json& j, const SourceResponseBody& p);
-
 
 
 	void to_json(json& j, const EvaluateResponse& p);
@@ -1136,7 +1161,9 @@ class SetExceptionBreakpointsResponse: public Response {
 	void to_json(json& j, const Scope& p);
 	void to_json(json& j, const ValueFormat& p);
 	void to_json(json& j, const VariablesArguments& p);
-	
+
+	void to_json(json& j, const OutputEventBody& p);
+	void to_json(json& j, const OutputEvent& p);
 }
 
     

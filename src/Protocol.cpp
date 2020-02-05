@@ -575,4 +575,30 @@ namespace vscode_debug {
         p.arguments = j.at("arguments").get<SetExceptionBreakpointsArguments>();
     }
 
+    void to_json(json& j, const OutputEventBody& p) {
+        j["output"] = p.output;
+
+        if (!p.category.empty())
+            j["category"] = p.category;
+
+        if (!p.data.empty())
+            j["data"] = p.data;
+
+        if (!p.source.name.empty())
+            j["source"] = p.source;
+
+        if (p.variablesReference != -1)
+            j["variablesReference"] = p.variablesReference;
+
+        if (p.line != -1)
+            j["line"] = p.line;
+
+        if (p.column != -1)
+            j["column"] = p.column;
+    }
+
+    void to_json(json& j, const OutputEvent& p) {
+        to_json(j,(Event&) p );
+        j["body"] = p.body;
+    }
 }
