@@ -167,10 +167,46 @@ namespace vscode_debug {
 
         void handleMethod(std::string content) override {
             Callbacks.onSetBreakPoint(content);
-        }        
+        }
     private:
         ProtocolCallbacks &Callbacks;
     };
+
+    // New handlers for DAP v1.71 -------------------------------------------
+#define MAKE_HANDLER(Name, Method) \
+    struct Name##Handler : Handler { \
+        Name##Handler(ProtocolCallbacks &Callbacks) : Handler(), Callbacks(Callbacks) {} \
+        void handleMethod(std::string content) override { Callbacks.Method(content); } \
+    private: \
+        ProtocolCallbacks &Callbacks; \
+    };
+
+    MAKE_HANDLER(Attach, onAttach)
+    MAKE_HANDLER(Restart, onRestart)
+    MAKE_HANDLER(Terminate, onTerminate)
+    MAKE_HANDLER(Cancel, onCancel)
+    MAKE_HANDLER(StepOut, onStepOut)
+    MAKE_HANDLER(StepBack, onStepBack)
+    MAKE_HANDLER(ReverseContinue, onReverseContinue)
+    MAKE_HANDLER(RestartFrame, onRestartFrame)
+    MAKE_HANDLER(Pause, onPause)
+    MAKE_HANDLER(Goto, onGoto)
+    MAKE_HANDLER(GotoTargets, onGotoTargets)
+    MAKE_HANDLER(SetVariable, onSetVariable)
+    MAKE_HANDLER(SetFunctionBreakpoints, onSetFunctionBreakpoints)
+    MAKE_HANDLER(DataBreakpointInfo, onDataBreakpointInfo)
+    MAKE_HANDLER(SetDataBreakpoints, onSetDataBreakpoints)
+    MAKE_HANDLER(BreakpointLocations, onBreakpointLocations)
+    MAKE_HANDLER(SetInstructionBreakpoints, onSetInstructionBreakpoints)
+    MAKE_HANDLER(ReadMemory, onReadMemory)
+    MAKE_HANDLER(WriteMemory, onWriteMemory)
+    MAKE_HANDLER(Disassemble, onDisassemble)
+    MAKE_HANDLER(Modules, onModules)
+    MAKE_HANDLER(LoadedSources, onLoadedSources)
+    MAKE_HANDLER(Completions, onCompletions)
+    MAKE_HANDLER(ExceptionInfo, onExceptionInfo)
+
+#undef MAKE_HANDLER
     
     void ProtocolCallbacks::setJsonOutPut(JSONOutput *Out) {
         OutPut= Out;
@@ -223,7 +259,33 @@ namespace vscode_debug {
         Dispatcher.registerHandler("evaluate", std::make_unique<EvaluateHandler>(Callbacks));
         Dispatcher.registerHandler("setExceptionBreakpoints", std::make_unique<SetExceptionBreakpointsHandler>(Callbacks));
         Dispatcher.registerHandler("source", std::make_unique<SourceHandler>(Callbacks));
+
+        // New handlers for DAP v1.71
+        Dispatcher.registerHandler("attach", std::make_unique<AttachHandler>(Callbacks));
+        Dispatcher.registerHandler("restart", std::make_unique<RestartHandler>(Callbacks));
+        Dispatcher.registerHandler("terminate", std::make_unique<TerminateHandler>(Callbacks));
+        Dispatcher.registerHandler("cancel", std::make_unique<CancelHandler>(Callbacks));
+        Dispatcher.registerHandler("stepOut", std::make_unique<StepOutHandler>(Callbacks));
+        Dispatcher.registerHandler("stepBack", std::make_unique<StepBackHandler>(Callbacks));
+        Dispatcher.registerHandler("reverseContinue", std::make_unique<ReverseContinueHandler>(Callbacks));
+        Dispatcher.registerHandler("restartFrame", std::make_unique<RestartFrameHandler>(Callbacks));
+        Dispatcher.registerHandler("pause", std::make_unique<PauseHandler>(Callbacks));
+        Dispatcher.registerHandler("goto", std::make_unique<GotoHandler>(Callbacks));
+        Dispatcher.registerHandler("gotoTargets", std::make_unique<GotoTargetsHandler>(Callbacks));
+        Dispatcher.registerHandler("setVariable", std::make_unique<SetVariableHandler>(Callbacks));
+        Dispatcher.registerHandler("setFunctionBreakpoints", std::make_unique<SetFunctionBreakpointsHandler>(Callbacks));
+        Dispatcher.registerHandler("dataBreakpointInfo", std::make_unique<DataBreakpointInfoHandler>(Callbacks));
+        Dispatcher.registerHandler("setDataBreakpoints", std::make_unique<SetDataBreakpointsHandler>(Callbacks));
+        Dispatcher.registerHandler("breakpointLocations", std::make_unique<BreakpointLocationsHandler>(Callbacks));
+        Dispatcher.registerHandler("setInstructionBreakpoints", std::make_unique<SetInstructionBreakpointsHandler>(Callbacks));
+        Dispatcher.registerHandler("readMemory", std::make_unique<ReadMemoryHandler>(Callbacks));
+        Dispatcher.registerHandler("writeMemory", std::make_unique<WriteMemoryHandler>(Callbacks));
+        Dispatcher.registerHandler("disassemble", std::make_unique<DisassembleHandler>(Callbacks));
+        Dispatcher.registerHandler("modules", std::make_unique<ModulesHandler>(Callbacks));
+        Dispatcher.registerHandler("loadedSources", std::make_unique<LoadedSourcesHandler>(Callbacks));
+        Dispatcher.registerHandler("completions", std::make_unique<CompletionsHandler>(Callbacks));
+        Dispatcher.registerHandler("exceptionInfo", std::make_unique<ExceptionInfoHandler>(Callbacks));
+
         Callbacks.setJsonOutPut(&Out);
-        //virtual void onLaunch(std::string content, JSONOutput &Out) = 0;
     }
 };

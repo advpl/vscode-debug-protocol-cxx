@@ -1,8 +1,10 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 
-set (CMAKE_CXX_STANDARD 14)
 enable_testing()
 project(vscode-debug-protocol-lib)
+set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
+
 if (WIN32)
     macro(get_WIN32_WINNT version)
         if (CMAKE_SYSTEM_VERSION)
@@ -93,7 +95,7 @@ if(UNIX)
         set (BOOST_LIBRARYDIR "/opt/boost/lib/") 
     #endif(APPLE)
 endif(UNIX)
-ADD_DEFINITIONS("-std=c++11")
+
 
 ###############################################################################
 ## dependencies ###############################################################

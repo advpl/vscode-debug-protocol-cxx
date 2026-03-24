@@ -2,13 +2,14 @@
 #define PROTOCOL_HPP
 #include <string>
 #include <vector>
+#include <optional>
 #include "json.hpp"
 /**
  * https://github.com/Microsoft/vscode-debugadapter-node/tree/master/protocol
- * 
- * 
+ *
+ *
 */
-//Protocol Version 1.26
+//Protocol Version 1.71
 namespace vscode_debug {
     //using boost::property_tree::ptree;
     using namespace std;
@@ -115,6 +116,8 @@ namespace vscode_debug {
 				*  If the attribute is missing or false, only the thread with the given threadId can be expanded.
 			*/
 			bool allThreadsStopped;//op
+		/** Ids of the breakpoints that triggered the event. */
+		vector<int> hitBreakpointIds;//op
 	};
 
 	/** Event message for 'stopped' event type.
@@ -165,7 +168,24 @@ namespace vscode_debug {
 		bool supportsVariablePaging;
 		/** Client supports the runInTerminal request. */
 		bool supportsRunInTerminalRequest;
-		InitializeRequestArguments() : linesStartAt1(),columnsStartAt1(),supportsVariableType(),supportsVariablePaging(),supportsRunInTerminalRequest()
+		/** Client supports memory references. */
+		bool supportsMemoryReferences;
+		/** Client supports progress reporting. */
+		bool supportsProgressReporting;
+		/** Client supports the invalidated event. */
+		bool supportsInvalidatedEvent;
+		/** Client supports the memory event. */
+		bool supportsMemoryEvent;
+		/** Client supports ANSI styling in OutputEvent messages. */
+		bool supportsANSIStyling;
+		/** Client supports args interpreted by the shell. */
+		bool supportsArgsCanBeInterpretedByShell;
+		/** Client supports the startDebugging request. */
+		bool supportsStartDebuggingRequest;
+		InitializeRequestArguments() : linesStartAt1(),columnsStartAt1(),supportsVariableType(),supportsVariablePaging(),
+			supportsRunInTerminalRequest(),supportsMemoryReferences(),supportsProgressReporting(),
+			supportsInvalidatedEvent(),supportsMemoryEvent(),supportsANSIStyling(),
+			supportsArgsCanBeInterpretedByShell(),supportsStartDebuggingRequest()
 		{
 
 		}
@@ -245,6 +265,8 @@ namespace vscode_debug {
 	struct ContinueArguments {
 		/** Continue execution for the specified thread (if possible). If the backend cannot continue on a single thread but will continue on all threads, it should set the allThreadsContinued attribute in the response to true. */
 		int threadId;
+		/** If true, continue only the specified thread. */
+		std::optional<bool> singleThread;
 	};
 
 /** Continue request; value of command field is 'continue'.
@@ -275,6 +297,10 @@ namespace vscode_debug {
 	struct NextArguments {
 		/** Execute 'next' for this thread. */
 		int threadId;//: number;
+		/** Stepping granularity. */
+		string granularity;//?: 'statement' | 'line' | 'instruction'
+		/** If true, execute only the specified thread. */
+		std::optional<bool> singleThread;
 	};
 	/** Next request; value of command field is 'next'.
 		The request starts the debuggee to run again for one step.
@@ -302,6 +328,10 @@ namespace vscode_debug {
 		int threadId;//: number;
 		/** Optional id of the target to step into. */
 		int targetId;//?: number;
+		/** Stepping granularity. */
+		string granularity;//?: 'statement' | 'line' | 'instruction'
+		/** If true, execute only the specified thread. */
+		std::optional<bool> singleThread;
 	};
 
 /** StepIn request; value of command field is 'stepIn'.
@@ -373,8 +403,18 @@ namespace vscode_debug {
 		int width;
 	};
 
+/** An ExceptionFilterOptions is used to specify an exception filter together with a condition for the setExceptionBreakpoints request. */
+	struct ExceptionFilterOptions {
+		/** ID of an exception filter returned by the 'exceptionBreakpointFilters' capability. */
+		string filterId;
+		/** An optional expression for conditional exception breakpoints. */
+		string condition;
+	};
+
 struct SetExceptionBreakpointsArguments{
 	vector<string> filters;
+	/** A list of exception filter options. */
+	vector<ExceptionFilterOptions> filterOptions;
 };
 class SetExceptionBreakpointsRequest : public Request {
 	
@@ -397,13 +437,22 @@ class SetExceptionBreakpointsResponse: public Response {
 		string label;
 		/** Initial value of the filter. If not specified a value 'false' is assumed. */
 		bool _default;
+		/** Controls whether a condition can be specified for this filter option. */
+		bool supportsCondition;
+		/** A help text providing info about the condition. This string is shown as the placeholder text for a text box and must be translated. */
+		string conditionDescription;
+		ExceptionBreakpointsFilter():_default(false),supportsCondition(false){}
 	};
 
     /** Information about the capabilities of a debug adapter. */
     struct Capabilities {
 		Capabilities():supportsConfigurationDoneRequest(),supportsFunctionBreakpoints(),supportsConditionalBreakpoints(),supportsHitConditionalBreakpoints(),supportsEvaluateForHovers(),supportsStepBack(),supportsSetVariable(),
 		supportsRestartFrame(),supportsGotoTargetsRequest(),supportsStepInTargetsRequest(),supportsCompletionsRequest(),supportsModulesRequest(),supportsRestartRequest(),supportsExceptionOptions(),
-		supportsValueFormattingOptions(),supportsExceptionInfoRequest(),supportTerminateDebuggee(),supportsDelayedStackTraceLoading(),supportsLoadedSourcesRequest()
+		supportsValueFormattingOptions(),supportsExceptionInfoRequest(),supportTerminateDebuggee(),supportsDelayedStackTraceLoading(),supportsLoadedSourcesRequest(),
+		supportsLogPoints(),supportsTerminateRequest(),supportsDataBreakpoints(),supportsReadMemoryRequest(),supportsWriteMemoryRequest(),supportsDisassembleRequest(),
+		supportsCancelRequest(),supportsBreakpointLocationsRequest(),supportsClipboardContext(),supportsSteppingGranularity(),supportsInstructionBreakpoints(),
+		supportsExceptionFilterOptions(),supportsSingleThreadExecutionRequests(),supportsProgressReporting(),supportsInvalidatedEvent(),supportsMemoryReferences(),
+		supportsMemoryEvent(),supportsStartDebuggingRequest(),supportsANSIStyling(),supportsDataBreakpointBytes()
 		{
 
 		}
@@ -451,6 +500,46 @@ class SetExceptionBreakpointsResponse: public Response {
 		bool supportsDelayedStackTraceLoading;
 		/** The debug adapter supports the 'loadedSources' request. */
 		bool supportsLoadedSourcesRequest;
+		/** The debug adapter supports logpoints by interpreting 'logMessage' in SourceBreakpoints. */
+		bool supportsLogPoints;
+		/** The debug adapter supports the 'terminate' request. */
+		bool supportsTerminateRequest;
+		/** The debug adapter supports data breakpoints. */
+		bool supportsDataBreakpoints;
+		/** The debug adapter supports the 'readMemory' request. */
+		bool supportsReadMemoryRequest;
+		/** The debug adapter supports the 'writeMemory' request. */
+		bool supportsWriteMemoryRequest;
+		/** The debug adapter supports the 'disassemble' request. */
+		bool supportsDisassembleRequest;
+		/** The debug adapter supports the 'cancel' request. */
+		bool supportsCancelRequest;
+		/** The debug adapter supports the 'breakpointLocations' request. */
+		bool supportsBreakpointLocationsRequest;
+		/** The debug adapter supports the 'clipboard' context value in the 'evaluate' request. */
+		bool supportsClipboardContext;
+		/** The debug adapter supports stepping granularities for the stepping requests. */
+		bool supportsSteppingGranularity;
+		/** The debug adapter supports instruction breakpoints. */
+		bool supportsInstructionBreakpoints;
+		/** The debug adapter supports 'filterOptions' as an argument on the 'setExceptionBreakpoints' request. */
+		bool supportsExceptionFilterOptions;
+		/** The debug adapter supports single thread execution requests. */
+		bool supportsSingleThreadExecutionRequests;
+		/** The debug adapter supports progress reporting. */
+		bool supportsProgressReporting;
+		/** The debug adapter supports the invalidated event. */
+		bool supportsInvalidatedEvent;
+		/** The debug adapter supports memory references. */
+		bool supportsMemoryReferences;
+		/** The debug adapter supports the memory event. */
+		bool supportsMemoryEvent;
+		/** The debug adapter supports the 'startDebugging' request. */
+		bool supportsStartDebuggingRequest;
+		/** The debug adapter supports ANSI styling in OutputEvent messages. */
+		bool supportsANSIStyling;
+		/** The debug adapter supports data breakpoint bytes. */
+		bool supportsDataBreakpointBytes;
 	};
 
 	/** Arguments for 'launch' request. */
@@ -554,6 +643,8 @@ class SetExceptionBreakpointsResponse: public Response {
 		string moduleId;//?: number | string;
 		/** An optional hint for how to present this frame in the UI. A value of 'label' can be used to indicate that the frame is an artificial frame that is used as a visual label or separator. A value of 'subtle' can be used to change the appearance of a frame in a 'subtle' way. */
 		string presentationHint;//?: 'normal' | 'label' | 'subtle';
+		/** A memory reference for the current instruction pointer in this frame. */
+		string instructionPointerReference;//?: string;
 		StackFrame()
 		{
 			endLine = -1;
@@ -581,12 +672,17 @@ class SetExceptionBreakpointsResponse: public Response {
 		int endLine;
 		/** An optional end column of the actual range covered by the breakpoint. If no end line is given, then the end column is assumed to be in the start line. */
 		int endColumn;
+		/** A memory reference to where the breakpoint is set. */
+		string instructionReference;//?: string;
+		/** An optional offset from the instruction reference. */
+		int offset;//?: number;
 		Breakpoint(){
 			id = -1;
 			line = -1;
 			column = -1;
 			endLine = -1;
-			endColumn =-1;
+			endColumn = -1;
+			offset = -1;
 		}
 	};
 
@@ -616,6 +712,8 @@ class SetExceptionBreakpointsResponse: public Response {
 		string hitCondition;
 		/** If this attribute exists and is non-empty, the backend must not 'break' (stop) but log the message instead. Expressions within {} are interpolated. */
 		string logMessage;
+		/** The mode of this breakpoint. If defined, this must be one of the 'breakpointModes' the debug adapter advertised in its Capabilities. */
+		string mode;
 	};
 	/** Arguments for 'setBreakpoints' request. */
 	struct SetBreakpointsArguments {
@@ -792,6 +890,8 @@ class SetExceptionBreakpointsResponse: public Response {
 				The client can use this optional information to present the children in a paged UI and fetch them in chunks.
 			*/
 			int indexedVariables; //?: number;
+		/** A memory reference associated with this variable. */
+		string memoryReference;//?: string;
 			Variable():variablesReference(0),namedVariables(0),indexedVariables(0){}
 			Variable(string name, string value, int variablesReference):name(name),value(value),variablesReference(variablesReference),namedVariables(0),indexedVariables(0){}
 	};
@@ -1049,17 +1149,22 @@ class SetExceptionBreakpointsResponse: public Response {
 	{
 		string category;
 		string output;
+		/** Support for keeping an output log organized by grouping related messages. */
+		string group;//?: 'start' | 'startCollapsed' | 'end'
 		int variablesReference; //Number
 		Source source;
 		int line; //Number
 		int column; //Number
 		string data; //Any
+		/** A reference that allows the client to request the location where the new value is declared. */
+		int locationReference;//?: number
 
 		OutputEventBody()
 		{
 			variablesReference = -1;
 			line = -1;
 			column = -1;
+			locationReference = -1;
 		}
 	};
 
@@ -1069,6 +1174,678 @@ class SetExceptionBreakpointsResponse: public Response {
 			OutputEvent():Event("output"){				
 			}
 	};
+
+	// -------------------------------------------------------------------------
+	// New types for DAP v1.71
+	// -------------------------------------------------------------------------
+
+	/** A function breakpoint. */
+	struct FunctionBreakpoint {
+		string name;
+		string condition;
+		string hitCondition;
+	};
+	struct SetFunctionBreakpointsArguments {
+		vector<FunctionBreakpoint> breakpoints;
+	};
+	class SetFunctionBreakpointsRequest : public Request {
+	public:
+		SetFunctionBreakpointsArguments arguments;
+	};
+	struct SetFunctionBreakpointsResponseBody {
+		vector<Breakpoint> breakpoints;
+	};
+	class SetFunctionBreakpointsResponse : public Response {
+	public:
+		SetFunctionBreakpointsResponseBody body;
+		SetFunctionBreakpointsResponse(SetFunctionBreakpointsRequest &req) : Response((Request&)req) {}
+	};
+
+	/** A data (memory) breakpoint. */
+	struct DataBreakpoint {
+		string dataId;
+		string accessType;//?: 'read' | 'write' | 'readWrite'
+		string condition;
+		string hitCondition;
+	};
+	struct DataBreakpointInfoArguments {
+		int variablesReference;//?: number — -1 if absent
+		string name;
+		int frameId;//?: number — -1 if absent
+		DataBreakpointInfoArguments():variablesReference(-1),frameId(-1){}
+	};
+	struct DataBreakpointInfoResponseBody {
+		string dataId;
+		string description;
+		vector<string> accessTypes;
+		bool canPersist;
+		DataBreakpointInfoResponseBody():canPersist(false){}
+	};
+	class DataBreakpointInfoRequest : public Request {
+	public:
+		DataBreakpointInfoArguments arguments;
+	};
+	class DataBreakpointInfoResponse : public Response {
+	public:
+		DataBreakpointInfoResponseBody body;
+		DataBreakpointInfoResponse(DataBreakpointInfoRequest &req) : Response((Request&)req) {}
+	};
+
+	struct SetDataBreakpointsArguments {
+		vector<DataBreakpoint> breakpoints;
+	};
+	class SetDataBreakpointsRequest : public Request {
+	public:
+		SetDataBreakpointsArguments arguments;
+	};
+	struct SetDataBreakpointsResponseBody {
+		vector<Breakpoint> breakpoints;
+	};
+	class SetDataBreakpointsResponse : public Response {
+	public:
+		SetDataBreakpointsResponseBody body;
+		SetDataBreakpointsResponse(SetDataBreakpointsRequest &req) : Response((Request&)req) {}
+	};
+
+	/** A location for a breakpoint (used in breakpointLocations response). */
+	struct BreakpointLocation {
+		int line;
+		int column;//?: number — -1 if absent
+		int endLine;//?: number — -1 if absent
+		int endColumn;//?: number — -1 if absent
+		BreakpointLocation():column(-1),endLine(-1),endColumn(-1){}
+	};
+	struct BreakpointLocationsArguments {
+		Source source;
+		int line;
+		int column;//?: number — -1 if absent
+		int endLine;//?: number — -1 if absent
+		int endColumn;//?: number — -1 if absent
+		BreakpointLocationsArguments():column(-1),endLine(-1),endColumn(-1){}
+	};
+	class BreakpointLocationsRequest : public Request {
+	public:
+		BreakpointLocationsArguments arguments;
+	};
+	struct BreakpointLocationsResponseBody {
+		vector<BreakpointLocation> breakpoints;
+	};
+	class BreakpointLocationsResponse : public Response {
+	public:
+		BreakpointLocationsResponseBody body;
+		BreakpointLocationsResponse(BreakpointLocationsRequest &req) : Response((Request&)req) {}
+	};
+
+	/** An instruction breakpoint. */
+	struct InstructionBreakpoint {
+		string instructionReference;
+		int offset;//?: number — -1 if absent
+		string condition;
+		string hitCondition;
+		string mode;
+		InstructionBreakpoint():offset(-1){}
+	};
+	struct SetInstructionBreakpointsArguments {
+		vector<InstructionBreakpoint> breakpoints;
+	};
+	class SetInstructionBreakpointsRequest : public Request {
+	public:
+		SetInstructionBreakpointsArguments arguments;
+	};
+	struct SetInstructionBreakpointsResponseBody {
+		vector<Breakpoint> breakpoints;
+	};
+	class SetInstructionBreakpointsResponse : public Response {
+	public:
+		SetInstructionBreakpointsResponseBody body;
+		SetInstructionBreakpointsResponse(SetInstructionBreakpointsRequest &req) : Response((Request&)req) {}
+	};
+
+	struct StepOutArguments {
+		int threadId;
+		string granularity;
+		std::optional<bool> singleThread;
+	};
+	class StepOutRequest : public Request {
+	public:
+		StepOutArguments arguments;
+	};
+	class StepOutResponse : public Response {
+	public:
+		StepOutResponse(StepOutRequest &req) : Response((Request&)req) {}
+	};
+
+	struct StepBackArguments {
+		int threadId;
+		string granularity;
+		std::optional<bool> singleThread;
+	};
+	class StepBackRequest : public Request {
+	public:
+		StepBackArguments arguments;
+	};
+	class StepBackResponse : public Response {
+	public:
+		StepBackResponse(StepBackRequest &req) : Response((Request&)req) {}
+	};
+
+	struct ReverseContinueArguments {
+		int threadId;
+		std::optional<bool> singleThread;
+	};
+	class ReverseContinueRequest : public Request {
+	public:
+		ReverseContinueArguments arguments;
+	};
+	class ReverseContinueResponse : public Response {
+	public:
+		ReverseContinueResponse(ReverseContinueRequest &req) : Response((Request&)req) {}
+	};
+
+	struct RestartFrameArguments {
+		int frameId;
+	};
+	class RestartFrameRequest : public Request {
+	public:
+		RestartFrameArguments arguments;
+	};
+	class RestartFrameResponse : public Response {
+	public:
+		RestartFrameResponse(RestartFrameRequest &req) : Response((Request&)req) {}
+	};
+
+	struct PauseArguments {
+		int threadId;
+	};
+	class PauseRequest : public Request {
+	public:
+		PauseArguments arguments;
+	};
+	class PauseResponse : public Response {
+	public:
+		PauseResponse(PauseRequest &req) : Response((Request&)req) {}
+	};
+
+	struct GotoTarget {
+		int id;
+		string label;
+		int line;
+		int column;//?: number — -1 if absent
+		int endLine;//?: number — -1 if absent
+		int endColumn;//?: number — -1 if absent
+		string instructionPointerReference;
+		GotoTarget():column(-1),endLine(-1),endColumn(-1){}
+	};
+	struct GotoArguments {
+		int threadId;
+		int targetId;
+	};
+	class GotoRequest : public Request {
+	public:
+		GotoArguments arguments;
+	};
+	class GotoResponse : public Response {
+	public:
+		GotoResponse(GotoRequest &req) : Response((Request&)req) {}
+	};
+
+	struct GotoTargetsArguments {
+		Source source;
+		int line;
+		int column;//?: number — -1 if absent
+		GotoTargetsArguments():column(-1){}
+	};
+	class GotoTargetsRequest : public Request {
+	public:
+		GotoTargetsArguments arguments;
+	};
+	struct GotoTargetsResponseBody {
+		vector<GotoTarget> targets;
+	};
+	class GotoTargetsResponse : public Response {
+	public:
+		GotoTargetsResponseBody body;
+		GotoTargetsResponse(GotoTargetsRequest &req) : Response((Request&)req) {}
+	};
+
+	struct SetVariableArguments {
+		int variablesReference;
+		string name;
+		string value;
+		ValueFormat format;
+	};
+	class SetVariableRequest : public Request {
+	public:
+		SetVariableArguments arguments;
+	};
+
+	struct ReadMemoryArguments {
+		string memoryReference;
+		int offset;//?: number — 0 if absent
+		int count;
+		ReadMemoryArguments():offset(0),count(0){}
+	};
+	class ReadMemoryRequest : public Request {
+	public:
+		ReadMemoryArguments arguments;
+	};
+	struct ReadMemoryResponseBody {
+		string address;
+		int unreadableBytes;//?: number — -1 if absent
+		string data;//base64-encoded
+		ReadMemoryResponseBody():unreadableBytes(-1){}
+	};
+	class ReadMemoryResponse : public Response {
+	public:
+		ReadMemoryResponseBody body;
+		ReadMemoryResponse(ReadMemoryRequest &req) : Response((Request&)req) {}
+	};
+
+	struct WriteMemoryArguments {
+		string memoryReference;
+		int offset;//?: number — 0 if absent
+		bool allowPartial;
+		string data;//base64-encoded
+		WriteMemoryArguments():offset(0),allowPartial(false){}
+	};
+	class WriteMemoryRequest : public Request {
+	public:
+		WriteMemoryArguments arguments;
+	};
+	struct WriteMemoryResponseBody {
+		int offset;//?: number — -1 if absent
+		int bytesWritten;//?: number — -1 if absent
+		WriteMemoryResponseBody():offset(-1),bytesWritten(-1){}
+	};
+	class WriteMemoryResponse : public Response {
+	public:
+		WriteMemoryResponseBody body;
+		WriteMemoryResponse(WriteMemoryRequest &req) : Response((Request&)req) {}
+	};
+
+	struct DisassembledInstruction {
+		string address;
+		string instructionBytes;
+		string instruction;
+		string symbol;
+		Source location;
+		int line;//?: number — -1 if absent
+		int column;//?: number — -1 if absent
+		int endLine;//?: number — -1 if absent
+		int endColumn;//?: number — -1 if absent
+		DisassembledInstruction():line(-1),column(-1),endLine(-1),endColumn(-1){}
+	};
+	struct DisassembleArguments {
+		string memoryReference;
+		int offset;
+		int instructionOffset;
+		int instructionCount;
+		bool resolveSymbols;
+		DisassembleArguments():offset(0),instructionOffset(0),instructionCount(0),resolveSymbols(false){}
+	};
+	class DisassembleRequest : public Request {
+	public:
+		DisassembleArguments arguments;
+	};
+	struct DisassembleResponseBody {
+		vector<DisassembledInstruction> instructions;
+	};
+	class DisassembleResponse : public Response {
+	public:
+		DisassembleResponseBody body;
+		DisassembleResponse(DisassembleRequest &req) : Response((Request&)req) {}
+	};
+
+	struct Module {
+		string id;
+		string name;
+		string path;
+		bool isOptimized;
+		bool isUserCode;
+		string version;
+		string symbolStatus;
+		string symbolFilePath;
+		string dateTimeStamp;
+		string addressRange;
+		Module():isOptimized(false),isUserCode(false){}
+	};
+	struct ModulesArguments {
+		int startModule;
+		int moduleCount;
+		ModulesArguments():startModule(0),moduleCount(0){}
+	};
+	class ModulesRequest : public Request {
+	public:
+		ModulesArguments arguments;
+	};
+	struct ModulesResponseBody {
+		vector<Module> modules;
+		int totalModules;
+		ModulesResponseBody():totalModules(-1){}
+	};
+	class ModulesResponse : public Response {
+	public:
+		ModulesResponseBody body;
+		ModulesResponse(ModulesRequest &req) : Response((Request&)req) {}
+	};
+
+	class LoadedSourcesRequest : public Request {};
+	struct LoadedSourcesResponseBody {
+		vector<Source> sources;
+	};
+	class LoadedSourcesResponse : public Response {
+	public:
+		LoadedSourcesResponseBody body;
+		LoadedSourcesResponse(LoadedSourcesRequest &req) : Response((Request&)req) {}
+	};
+
+	struct CompletionItem {
+		string label;
+		string text;
+		string sortText;
+		string detail;
+		string type;
+		int start;
+		int length;
+		int selectionStart;
+		int selectionLength;
+		CompletionItem():start(-1),length(-1),selectionStart(-1),selectionLength(-1){}
+	};
+	struct CompletionsArguments {
+		int frameId;
+		string text;
+		int column;
+		int line;
+		CompletionsArguments():frameId(-1),column(0),line(-1){}
+	};
+	class CompletionsRequest : public Request {
+	public:
+		CompletionsArguments arguments;
+	};
+	struct CompletionsResponseBody {
+		vector<CompletionItem> targets;
+	};
+	class CompletionsResponse : public Response {
+	public:
+		CompletionsResponseBody body;
+		CompletionsResponse(CompletionsRequest &req) : Response((Request&)req) {}
+	};
+
+	struct ExceptionDetails {
+		string message;
+		string typeName;
+		string fullTypeName;
+		string evaluateName;
+		string stackTrace;
+	};
+	struct ExceptionInfoArguments {
+		int threadId;
+	};
+	class ExceptionInfoRequest : public Request {
+	public:
+		ExceptionInfoArguments arguments;
+	};
+	struct ExceptionInfoResponseBody {
+		string exceptionId;
+		string description;
+		string breakMode;//'never' | 'always' | 'unhandled' | 'userUnhandled'
+		ExceptionDetails details;
+	};
+	class ExceptionInfoResponse : public Response {
+	public:
+		ExceptionInfoResponseBody body;
+		ExceptionInfoResponse(ExceptionInfoRequest &req) : Response((Request&)req) {}
+	};
+
+	struct AttachRequestArguments {
+		string restart;
+	};
+	class AttachRequest : public Request {
+	public:
+		AttachRequestArguments arguments;
+	};
+	class AttachResponse : public Response {
+	public:
+		AttachResponse(AttachRequest &req) : Response((Request&)req) {}
+	};
+
+	struct DisconnectArguments {
+		std::optional<bool> restart;
+		std::optional<bool> terminateDebuggee;
+		std::optional<bool> suspendDebuggee;
+	};
+	class DisconnectRequest : public Request {
+	public:
+		DisconnectArguments arguments;
+	};
+	class DisconnectResponse : public Response {
+	public:
+		DisconnectResponse(DisconnectRequest &req) : Response((Request&)req) {}
+	};
+
+	struct TerminateArguments {
+		std::optional<bool> restart;
+	};
+	class TerminateRequest : public Request {
+	public:
+		TerminateArguments arguments;
+	};
+	class TerminateResponse : public Response {
+	public:
+		TerminateResponse(TerminateRequest &req) : Response((Request&)req) {}
+	};
+
+	struct RestartArguments {};
+	class RestartRequest : public Request {
+	public:
+		RestartArguments arguments;
+	};
+	class RestartResponse : public Response {
+	public:
+		RestartResponse(RestartRequest &req) : Response((Request&)req) {}
+	};
+
+	struct CancelArguments {
+		int requestId;//?: number — -1 if absent
+		string progressId;
+		CancelArguments():requestId(-1){}
+	};
+	class CancelRequest : public Request {
+	public:
+		CancelArguments arguments;
+	};
+	class CancelResponse : public Response {
+	public:
+		CancelResponse(CancelRequest &req) : Response((Request&)req) {}
+	};
+
+	class ConfigurationDoneResponse : public Response {
+	public:
+		ConfigurationDoneResponse(ConfigurationDoneRequest &req) : Response((Request&)req) {}
+	};
+	class LaunchResponse : public Response {
+	public:
+		LaunchResponse(LaunchRequest &req) : Response((Request&)req) {}
+	};
+
+	/** Reverse request: adapter → client to run a command in a terminal. */
+	struct RunInTerminalRequestArguments {
+		string kind;//'integrated' | 'external'
+		string title;
+		string cwd;
+		vector<string> args;
+	};
+	struct RunInTerminalResponseBody {
+		int processId;//?: number — -1 if absent
+		int shellProcessId;//?: number — -1 if absent
+		RunInTerminalResponseBody():processId(-1),shellProcessId(-1){}
+	};
+	class RunInTerminalRequest : public Request {
+	public:
+		RunInTerminalRequestArguments arguments;
+		RunInTerminalRequest() { type = "request"; command = "runInTerminal"; }
+	};
+	class RunInTerminalResponse : public Response {
+	public:
+		RunInTerminalResponseBody body;
+		RunInTerminalResponse(RunInTerminalRequest &req) : Response((Request&)req) {}
+	};
+
+	/** Reverse request: adapter → client to start a new debug session. */
+	struct StartDebuggingRequestArguments {
+		string request;//'launch' | 'attach'
+	};
+	class StartDebuggingRequest : public Request {
+	public:
+		StartDebuggingRequestArguments arguments;
+		StartDebuggingRequest() { type = "request"; command = "startDebugging"; }
+	};
+	class StartDebuggingResponse : public Response {
+	public:
+		StartDebuggingResponse(StartDebuggingRequest &req) : Response((Request&)req) {}
+	};
+
+	// New events -----------------------------------------------------------
+
+	struct ProgressStartEventBody {
+		string progressId;
+		string title;
+		int requestId;//?: number — -1 if absent
+		bool cancellable;
+		string message;
+		double percentage;//?: 0-100 — -1 if absent
+		ProgressStartEventBody():requestId(-1),cancellable(false),percentage(-1){}
+	};
+	class ProgressStartEvent : public Event {
+	public:
+		ProgressStartEventBody body;
+		ProgressStartEvent() : Event("progressStart") {}
+	};
+
+	struct ProgressUpdateEventBody {
+		string progressId;
+		string message;
+		double percentage;//?: 0-100 — -1 if absent
+		ProgressUpdateEventBody():percentage(-1){}
+	};
+	class ProgressUpdateEvent : public Event {
+	public:
+		ProgressUpdateEventBody body;
+		ProgressUpdateEvent() : Event("progressUpdate") {}
+	};
+
+	struct ProgressEndEventBody {
+		string progressId;
+		string message;
+	};
+	class ProgressEndEvent : public Event {
+	public:
+		ProgressEndEventBody body;
+		ProgressEndEvent() : Event("progressEnd") {}
+	};
+
+	struct InvalidatedEventBody {
+		/** Set of logical areas that got invalidated. */
+		vector<string> areas;//?: ('all' | 'stacks' | 'threads' | 'variables')[]
+		int threadId;//?: number — -1 if absent
+		int stackFrameId;//?: number — -1 if absent
+		InvalidatedEventBody():threadId(-1),stackFrameId(-1){}
+	};
+	class InvalidatedEvent : public Event {
+	public:
+		InvalidatedEventBody body;
+		InvalidatedEvent() : Event("invalidated") {}
+	};
+
+	struct MemoryEventBody {
+		string memoryReference;
+		int offset;
+		int count;
+		MemoryEventBody():offset(0),count(0){}
+	};
+	class MemoryEvent : public Event {
+	public:
+		MemoryEventBody body;
+		MemoryEvent() : Event("memory") {}
+	};
+
+	struct ContinuedEventBody {
+		int threadId;
+		bool allThreadsContinued;
+		ContinuedEventBody():threadId(0),allThreadsContinued(false){}
+	};
+	class ContinuedEvent : public Event {
+	public:
+		ContinuedEventBody body;
+		ContinuedEvent() : Event("continued") {}
+	};
+
+	struct ExitedEventBody {
+		int exitCode;
+		ExitedEventBody():exitCode(0){}
+	};
+	class ExitedEvent : public Event {
+	public:
+		ExitedEventBody body;
+		ExitedEvent() : Event("exited") {}
+	};
+
+	struct ThreadEventBody {
+		int threadId;
+		string reason;//'started' | 'exited'
+	};
+	class ThreadEvent : public Event {
+	public:
+		ThreadEventBody body;
+		ThreadEvent() : Event("thread") {}
+	};
+
+	struct ModuleEventBody {
+		string reason;//'new' | 'changed' | 'removed'
+		Module module;
+	};
+	class ModuleEvent : public Event {
+	public:
+		ModuleEventBody body;
+		ModuleEvent() : Event("module") {}
+	};
+
+	struct LoadedSourceEventBody {
+		string reason;//'new' | 'changed' | 'removed'
+		Source source;
+	};
+	class LoadedSourceEvent : public Event {
+	public:
+		LoadedSourceEventBody body;
+		LoadedSourceEvent() : Event("loadedSource") {}
+	};
+
+	struct ProcessEventBody {
+		string name;
+		int systemProcessId;//?: number — -1 if absent
+		bool isLocalProcess;
+		string startMethod;//?: 'launch' | 'attach' | 'attachForSuspendedLaunch'
+		int pointerSize;//?: number — -1 if absent
+		ProcessEventBody():systemProcessId(-1),isLocalProcess(true),pointerSize(-1){}
+	};
+	class ProcessEvent : public Event {
+	public:
+		ProcessEventBody body;
+		ProcessEvent() : Event("process") {}
+	};
+
+	struct CapabilitiesEventBody {
+		Capabilities capabilities;
+	};
+	class CapabilitiesEvent : public Event {
+	public:
+		CapabilitiesEventBody body;
+		CapabilitiesEvent() : Event("capabilities") {}
+	};
+
+	// -------------------------------------------------------------------------
+	// End of new types for DAP v1.71
+	// -------------------------------------------------------------------------
 
 	void from_json(const json& j, SourceArguments& p);
 	void from_json(const json& j, SourceRequest& p);
@@ -1164,6 +1941,175 @@ class SetExceptionBreakpointsResponse: public Response {
 
 	void to_json(json& j, const OutputEventBody& p);
 	void to_json(json& j, const OutputEvent& p);
+
+	// New serialization functions for DAP v1.71 --------------------------------
+
+	// Capabilities (updated)
+	void from_json(const json& j, InitializeRequestArguments& p);
+
+	// SetFunctionBreakpoints
+	void from_json(const json& j, FunctionBreakpoint& p);
+	void from_json(const json& j, SetFunctionBreakpointsArguments& p);
+	void from_json(const json& j, SetFunctionBreakpointsRequest& p);
+	void to_json(json& j, const FunctionBreakpoint& p);
+	void to_json(json& j, const SetFunctionBreakpointsResponseBody& p);
+	void to_json(json& j, const SetFunctionBreakpointsResponse& p);
+
+	// DataBreakpoints
+	void from_json(const json& j, DataBreakpoint& p);
+	void from_json(const json& j, DataBreakpointInfoArguments& p);
+	void from_json(const json& j, DataBreakpointInfoRequest& p);
+	void from_json(const json& j, SetDataBreakpointsArguments& p);
+	void from_json(const json& j, SetDataBreakpointsRequest& p);
+	void to_json(json& j, const DataBreakpointInfoResponseBody& p);
+	void to_json(json& j, const DataBreakpointInfoResponse& p);
+	void to_json(json& j, const SetDataBreakpointsResponseBody& p);
+	void to_json(json& j, const SetDataBreakpointsResponse& p);
+
+	// BreakpointLocations
+	void from_json(const json& j, BreakpointLocationsArguments& p);
+	void from_json(const json& j, BreakpointLocationsRequest& p);
+	void to_json(json& j, const BreakpointLocation& p);
+	void to_json(json& j, const BreakpointLocationsResponseBody& p);
+	void to_json(json& j, const BreakpointLocationsResponse& p);
+
+	// InstructionBreakpoints
+	void from_json(const json& j, InstructionBreakpoint& p);
+	void from_json(const json& j, SetInstructionBreakpointsArguments& p);
+	void from_json(const json& j, SetInstructionBreakpointsRequest& p);
+	void to_json(json& j, const SetInstructionBreakpointsResponseBody& p);
+	void to_json(json& j, const SetInstructionBreakpointsResponse& p);
+
+	// Execution control
+	void from_json(const json& j, StepOutArguments& p);
+	void from_json(const json& j, StepOutRequest& p);
+	void to_json(json& j, const StepOutResponse& p);
+	void from_json(const json& j, StepBackArguments& p);
+	void from_json(const json& j, StepBackRequest& p);
+	void to_json(json& j, const StepBackResponse& p);
+	void from_json(const json& j, ReverseContinueArguments& p);
+	void from_json(const json& j, ReverseContinueRequest& p);
+	void to_json(json& j, const ReverseContinueResponse& p);
+	void from_json(const json& j, RestartFrameArguments& p);
+	void from_json(const json& j, RestartFrameRequest& p);
+	void to_json(json& j, const RestartFrameResponse& p);
+	void from_json(const json& j, PauseArguments& p);
+	void from_json(const json& j, PauseRequest& p);
+	void to_json(json& j, const PauseResponse& p);
+
+	// Goto
+	void from_json(const json& j, GotoArguments& p);
+	void from_json(const json& j, GotoRequest& p);
+	void to_json(json& j, const GotoResponse& p);
+	void from_json(const json& j, GotoTargetsArguments& p);
+	void from_json(const json& j, GotoTargetsRequest& p);
+	void to_json(json& j, const GotoTarget& p);
+	void to_json(json& j, const GotoTargetsResponseBody& p);
+	void to_json(json& j, const GotoTargetsResponse& p);
+
+	// SetVariable
+	void from_json(const json& j, SetVariableArguments& p);
+	void from_json(const json& j, SetVariableRequest& p);
+
+	// Memory
+	void from_json(const json& j, ReadMemoryArguments& p);
+	void from_json(const json& j, ReadMemoryRequest& p);
+	void to_json(json& j, const ReadMemoryResponseBody& p);
+	void to_json(json& j, const ReadMemoryResponse& p);
+	void from_json(const json& j, WriteMemoryArguments& p);
+	void from_json(const json& j, WriteMemoryRequest& p);
+	void to_json(json& j, const WriteMemoryResponseBody& p);
+	void to_json(json& j, const WriteMemoryResponse& p);
+
+	// Disassemble
+	void from_json(const json& j, DisassembleArguments& p);
+	void from_json(const json& j, DisassembleRequest& p);
+	void to_json(json& j, const DisassembledInstruction& p);
+	void to_json(json& j, const DisassembleResponseBody& p);
+	void to_json(json& j, const DisassembleResponse& p);
+
+	// Modules
+	void from_json(const json& j, ModulesArguments& p);
+	void from_json(const json& j, ModulesRequest& p);
+	void to_json(json& j, const Module& p);
+	void to_json(json& j, const ModulesResponseBody& p);
+	void to_json(json& j, const ModulesResponse& p);
+
+	// LoadedSources
+	void from_json(const json& j, LoadedSourcesRequest& p);
+	void to_json(json& j, const LoadedSourcesResponseBody& p);
+	void to_json(json& j, const LoadedSourcesResponse& p);
+
+	// Completions
+	void from_json(const json& j, CompletionsArguments& p);
+	void from_json(const json& j, CompletionsRequest& p);
+	void to_json(json& j, const CompletionItem& p);
+	void to_json(json& j, const CompletionsResponseBody& p);
+	void to_json(json& j, const CompletionsResponse& p);
+
+	// ExceptionInfo
+	void from_json(const json& j, ExceptionInfoArguments& p);
+	void from_json(const json& j, ExceptionInfoRequest& p);
+	void to_json(json& j, const ExceptionDetails& p);
+	void to_json(json& j, const ExceptionInfoResponseBody& p);
+	void to_json(json& j, const ExceptionInfoResponse& p);
+
+	// Attach / Disconnect / Terminate / Restart / Cancel
+	void from_json(const json& j, AttachRequestArguments& p);
+	void from_json(const json& j, AttachRequest& p);
+	void to_json(json& j, const AttachResponse& p);
+	void from_json(const json& j, DisconnectArguments& p);
+	void from_json(const json& j, DisconnectRequest& p);
+	void to_json(json& j, const DisconnectResponse& p);
+	void from_json(const json& j, TerminateArguments& p);
+	void from_json(const json& j, TerminateRequest& p);
+	void to_json(json& j, const TerminateResponse& p);
+	void from_json(const json& j, RestartArguments& p);
+	void from_json(const json& j, RestartRequest& p);
+	void to_json(json& j, const RestartResponse& p);
+	void from_json(const json& j, CancelArguments& p);
+	void from_json(const json& j, CancelRequest& p);
+	void to_json(json& j, const CancelResponse& p);
+	void to_json(json& j, const ConfigurationDoneResponse& p);
+	void to_json(json& j, const LaunchResponse& p);
+
+	// ExceptionFilterOptions
+	void from_json(const json& j, ExceptionFilterOptions& p);
+
+	// Reverse requests
+	void to_json(json& j, const RunInTerminalRequestArguments& p);
+	void to_json(json& j, const RunInTerminalRequest& p);
+	void from_json(const json& j, RunInTerminalResponseBody& p);
+	void from_json(const json& j, RunInTerminalResponse& p);
+	void to_json(json& j, const StartDebuggingRequestArguments& p);
+	void to_json(json& j, const StartDebuggingRequest& p);
+	void from_json(const json& j, StartDebuggingResponse& p);
+
+	// New events
+	void to_json(json& j, const ProgressStartEventBody& p);
+	void to_json(json& j, const ProgressStartEvent& p);
+	void to_json(json& j, const ProgressUpdateEventBody& p);
+	void to_json(json& j, const ProgressUpdateEvent& p);
+	void to_json(json& j, const ProgressEndEventBody& p);
+	void to_json(json& j, const ProgressEndEvent& p);
+	void to_json(json& j, const InvalidatedEventBody& p);
+	void to_json(json& j, const InvalidatedEvent& p);
+	void to_json(json& j, const MemoryEventBody& p);
+	void to_json(json& j, const MemoryEvent& p);
+	void to_json(json& j, const ContinuedEventBody& p);
+	void to_json(json& j, const ContinuedEvent& p);
+	void to_json(json& j, const ExitedEventBody& p);
+	void to_json(json& j, const ExitedEvent& p);
+	void to_json(json& j, const ThreadEventBody& p);
+	void to_json(json& j, const ThreadEvent& p);
+	void to_json(json& j, const ModuleEventBody& p);
+	void to_json(json& j, const ModuleEvent& p);
+	void to_json(json& j, const LoadedSourceEventBody& p);
+	void to_json(json& j, const LoadedSourceEvent& p);
+	void to_json(json& j, const ProcessEventBody& p);
+	void to_json(json& j, const ProcessEvent& p);
+	void to_json(json& j, const CapabilitiesEventBody& p);
+	void to_json(json& j, const CapabilitiesEvent& p);
 }
 
     
