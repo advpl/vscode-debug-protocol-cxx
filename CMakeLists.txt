@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
 
+
+cmake_policy (SET CMP0167 OLD)
+set (Boost_VERBOSE ON)
+set (Boost_DEBUG ON)
+
 enable_testing()
 project(vscode-debug-protocol-lib)
 set (CMAKE_CXX_STANDARD 17)
@@ -7,28 +12,42 @@ set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (WIN32)
     macro(get_WIN32_WINNT version)
-        if (CMAKE_SYSTEM_VERSION)
-            set(ver ${CMAKE_SYSTEM_VERSION})
-            string(REGEX MATCH "^([0-9]+).([0-9])" ver ${ver})
-            string(REGEX MATCH "^([0-9]+)" verMajor ${ver})
-            # Check for Windows 10, b/c we'll need to convert to hex 'A'.
-            if ("${verMajor}" MATCHES "10")
-                set(verMajor "A")
-                string(REGEX REPLACE "^([0-9]+)" ${verMajor} ver ${ver})
-            endif ("${verMajor}" MATCHES "10")
-            # Remove all remaining '.' characters.
+    if (CMAKE_SYSTEM_VERSION)
+        set(ver ${CMAKE_SYSTEM_VERSION})
+        string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" ver ${ver})
+
+        string(REGEX MATCH "^([0-9]+)" verMajor ${ver})
+        string(REGEX MATCH "\\.([0-9]+)\\." verMinor ${ver})
+        string(REGEX REPLACE "\\." "" verMinor ${verMinor})
+        string(REGEX MATCH "\\.([0-9]+)$" verBuild ${ver})
+        string(REGEX REPLACE "\\." "" verBuild ${verBuild})
+
+        # Windows 11 has major=10, minor=0, build >= 22000
+        if ("${verMajor}" MATCHES "10")
+            if (${verBuild} GREATER_EQUAL 22000)
+                # Windows 11 → _WIN32_WINNT_WIN11 = 0x0B00
+                set(${version} "0x0B00")
+            else()
+                # Windows 10 → _WIN32_WINNT_WIN10 = 0x0A00
+                set(${version} "0x0A00")
+            endif()
+        else()
+            # Legacy Windows (pre-10): compute hex from major.minor as before
+            set(verMajorHex ${verMajor})
+            string(REGEX REPLACE "^([0-9]+)" ${verMajorHex} ver "${verMajor}.${verMinor}")
             string(REPLACE "." "" ver ${ver})
-            # Prepend each digit with a zero.
             string(REGEX REPLACE "([0-9A-Z])" "0\\1" ver ${ver})
             set(${version} "0x${ver}")
-        endif(CMAKE_SYSTEM_VERSION)
-    endmacro(get_WIN32_WINNT)
+        endif()
+    endif()
+endmacro(get_WIN32_WINNT)
 
+    ADD_DEFINITIONS(-D_HAS_STD_BYTE=0)
     ADD_DEFINITIONS(-DUNICODE)
     ADD_DEFINITIONS(-D_UNICODE)
     get_WIN32_WINNT(ver)
-    add_definitions(-D_WIN32_WINNT=${ver})
-    #add_definitions(-D_WIN32_WINNT=0x0501)
+    #add_definitions(-D_WIN32_WINNT=${ver})
+    add_definitions(-D_WIN32_WINNT=0x0A00)
     if(MSVC)
         add_definitions(-D_CRT_SECURE_NO_WARNINGS)
         add_definitions(-D_SCL_SECURE_NO_WARNINGS)
@@ -77,9 +96,10 @@ elseif (UNIX)
     set (BOOST_LIBRARYDIR "/opt/boost/lib/")    
 elseif (WIN32)
 #    set (Boost_ARCHITECTURE "-x64")
-    set (BOOST_ROOT "C:/local/boost_1_74_0" )
-    set (BOOST_LIBRARYDIR "C:/local/boost/include")    
-    set (BOOST_INCLUDEDIR "C:/local/boost_1_74_0/stage/lib")
+    set (BOOST_ROOT "E:/local/boost_1_83_0" )
+    set (BOOST_LIBRARYDIR "E:/local/boost_1_83_0/boost")    
+    set (BOOST_INCLUDEDIR "E:/local/boost_1_83_0/stage/lib")
+    #set(Boost_DIR "E:/local/boost_1_91_0/stage/lib/cmake/Boost-1.91.0") 
 endif()
 endif()
 if(UNIX)
@@ -111,12 +131,12 @@ set (Boost_USE_STATIC_RUNTIME OFF)
 set (BOOST_ALL_DYN_LINK OFF)
 set (Boost_NO_BOOST_CMAKE ON)
 set (Boost_DEBUG true)
-find_package(Boost
-        REQUIRED
+
+find_package(Boost 
+        REQUIRED COMPONENTS
         log_setup
         log
-        filesystem
-        system
+        filesystem        
         thread
         serialization
         date_time
