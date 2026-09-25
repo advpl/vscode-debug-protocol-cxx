@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
 
-
-cmake_policy (SET CMP0167 OLD)
-set (Boost_VERBOSE ON)
-set (Boost_DEBUG ON)
-
+if (WIN32)
+    cmake_policy (SET CMP0167 OLD)
+    set (Boost_VERBOSE ON)
+    set (Boost_DEBUG ON)
+endif(WIN32)
 enable_testing()
 project(vscode-debug-protocol-lib)
 set (CMAKE_CXX_STANDARD 17)
